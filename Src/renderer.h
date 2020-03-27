@@ -10,6 +10,7 @@
 
 #include "skyboxRenderer.h"
 #include "terrainRenderer.h"
+#include "terrainChunk.h"
 
 #include "model.h"
 
@@ -120,6 +121,9 @@ namespace Renderer
 
     Model* model;
 
+
+    std::vector<TerrainChunk*> chunks;
+
     const int terrainSize = 64;
 
     float elapsed = 0;
@@ -142,8 +146,19 @@ namespace Renderer
         
         model = new Model("Assets/Kenney/grass.obj");
 
-        terrainRenderer = new TerrainRenderer(128);
+        terrainRenderer = new TerrainRenderer();
         skyboxRenderer = new SkyboxRenderer();
+
+
+        FastNoise noise;
+
+        for(int x = -2; x < 2; ++x)
+        {
+            for(int z = -2; z < 2; ++z)
+            {   
+                chunks.push_back(new TerrainChunk(noise, x, z));
+            }
+        }
 
 
         std::cout << "FINISHED LOADING" << std::endl;
@@ -163,7 +178,7 @@ namespace Renderer
 
 
         skyboxRenderer->draw(view);
-        terrainRenderer->draw(view);
+        terrainRenderer->draw(view, chunks);
 
         shader->use();
         shader->setMat4("proj", proj);
