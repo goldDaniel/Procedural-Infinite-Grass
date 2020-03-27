@@ -42,7 +42,8 @@ private:
     "}\n";
 
     unsigned int VAO;
-    unsigned int VBO;
+    unsigned int positionBuffer;
+    unsigned int normalBuffer;
 
     int numVertices;
 
@@ -128,14 +129,14 @@ public:
             }
         }
 
+
         glGenVertexArrays(1, &VAO);
-        glGenBuffers(1, &VBO);
+        glGenBuffers(1, &positionBuffer);
        
         glBindVertexArray(VAO);
 
-        glBindBuffer(GL_ARRAY_BUFFER, VBO);
+        glBindBuffer(GL_ARRAY_BUFFER, positionBuffer);
         glBufferData(GL_ARRAY_BUFFER, 18 * terrainSize * terrainSize * sizeof(float), &vertices[0], GL_STATIC_DRAW);
-
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
         glEnableVertexAttribArray(0);
 
@@ -143,6 +144,7 @@ public:
 
         terrainShader = new Shader(vertexSource, fragmentSource);
 
+        delete vertices;
     }
 
     ~TerrainRenderer()
