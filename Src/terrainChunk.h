@@ -82,7 +82,6 @@ public:
         {
             for(int j = 0; j < TERRAIN_SIZE; ++j)
             {
-
                 float x = i + (chunkPosX * TERRAIN_SIZE);
                 float z = j + (chunkPosZ * TERRAIN_SIZE);
 
@@ -95,6 +94,14 @@ public:
                 colors[colorIndex++] = vertexColor.g;
                 colors[colorIndex++] = vertexColor.b;
 
+                vertexPosition = generateVertexPosition(noise, x + 1, z + 1);
+                vertexColor = generateVertexColor(vertexPosition);
+                vertices[vertexIndex++] = vertexPosition.x;
+                vertices[vertexIndex++] = vertexPosition.y;
+                vertices[vertexIndex++] = vertexPosition.z;
+                colors[colorIndex++] = vertexColor.r;
+                colors[colorIndex++] = vertexColor.g;
+                colors[colorIndex++] = vertexColor.b;
 
                 vertexPosition = generateVertexPosition(noise, x + 1, z);
                 vertexColor = generateVertexColor(vertexPosition);
@@ -104,16 +111,7 @@ public:
                 colors[colorIndex++] = vertexColor.r;
                 colors[colorIndex++] = vertexColor.g;
                 colors[colorIndex++] = vertexColor.b;
-
-
-                vertexPosition = generateVertexPosition(noise, x + 1, z + 1);
-                vertexColor = generateVertexColor(vertexPosition);
-                vertices[vertexIndex++] = vertexPosition.x;
-                vertices[vertexIndex++] = vertexPosition.y;
-                vertices[vertexIndex++] = vertexPosition.z;
-                colors[colorIndex++] = vertexColor.r;
-                colors[colorIndex++] = vertexColor.g;
-                colors[colorIndex++] = vertexColor.b;
+                
 
 
                 vertexPosition = generateVertexPosition(noise, x, z);
@@ -125,6 +123,14 @@ public:
                 colors[colorIndex++] = vertexColor.g;
                 colors[colorIndex++] = vertexColor.b;
 
+                vertexPosition = generateVertexPosition(noise, x, z + 1);
+                vertexColor = generateVertexColor(vertexPosition);
+                vertices[vertexIndex++] = vertexPosition.x;
+                vertices[vertexIndex++] = vertexPosition.y;
+                vertices[vertexIndex++] = vertexPosition.z;
+                colors[colorIndex++] = vertexColor.r;
+                colors[colorIndex++] = vertexColor.g;
+                colors[colorIndex++] = vertexColor.b;
 
                 vertexPosition = generateVertexPosition(noise, x + 1, z + 1);
                 vertexColor = generateVertexColor(vertexPosition);
@@ -134,16 +140,6 @@ public:
                 colors[colorIndex++] = vertexColor.r;
                 colors[colorIndex++] = vertexColor.g;
                 colors[colorIndex++] = vertexColor.b;                
-
-
-                vertexPosition = generateVertexPosition(noise, x, z + 1);
-                vertexColor = generateVertexColor(vertexPosition);
-                vertices[vertexIndex++] = vertexPosition.x;
-                vertices[vertexIndex++] = vertexPosition.y;
-                vertices[vertexIndex++] = vertexPosition.z;
-                colors[colorIndex++] = vertexColor.r;
-                colors[colorIndex++] = vertexColor.g;
-                colors[colorIndex++] = vertexColor.b;
             }
         }
 
@@ -191,7 +187,7 @@ public:
     }
 };
 
-int TerrainChunk::TERRAIN_SIZE = 128;
+int TerrainChunk::TERRAIN_SIZE = 64;
 int TerrainChunk::NOISE_HEIGHT_SCALE = 32;
 
 #endif
