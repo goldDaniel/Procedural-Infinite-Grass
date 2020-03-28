@@ -94,7 +94,7 @@ int main()
 {
 	initScreen("OpenGL 3.3");
 	
-	cam = new Camera(glm::vec3(0, 48, 0));
+	cam = new Camera(glm::vec3(0, 128, 0));
 	Renderer::Init();
 	
 	SDL_Event event;

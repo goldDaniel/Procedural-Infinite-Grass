@@ -24,12 +24,44 @@ private:
         result.x = x;
         result.z = z;
 
-        result.y = (    (
-                            noise.GetValue(x, z)         + 
-                            noise.GetValue(x * 2, z * 2) +
-                            noise.GetValue(x * 4, z * 4)
-                        ) / 3.f + 1 / 2.f
-                    ) * NOISE_HEIGHT_SCALE;
+
+        //we blend several weighted noise values together here
+        result.y = NOISE_HEIGHT_SCALE * 
+                    (    
+                        (
+                            noise.GetValue(x * 0.5f, z * 0.5f) +
+                            noise.GetValue(x * 0.75f,  z * 0.75f) +
+                            noise.GetValue(x * 1.f, z * 1.f) +
+                            noise.GetValue(x * 1.25f,   z * 1.25f)
+                        ) / 4.f + 1 / 2.f
+                    );
+
+
+        return result;
+    }
+
+    glm::vec3 generateVertexColor(glm::vec3 position)
+    {
+        glm::vec3 result;
+
+        if(position.y < NOISE_HEIGHT_SCALE / 16.f)
+        {
+            result.r = 0.1f;
+            result.g = 0.2f;
+            result.b = 0.3f;
+        }
+        else if(position.y < NOISE_HEIGHT_SCALE / 2)
+        {
+            result.r = 0.2f * position.y / NOISE_HEIGHT_SCALE / 2.f;
+            result.g = 0.7f * position.y / NOISE_HEIGHT_SCALE / 2.f;
+            result.b = 0.3f * position.y / NOISE_HEIGHT_SCALE / 2.f;
+        }
+        else
+        {
+            result.r = 0.6f * position.y / NOISE_HEIGHT_SCALE;
+            result.g = 0.8f * position.y / NOISE_HEIGHT_SCALE;
+            result.b = 0.4f * position.y / NOISE_HEIGHT_SCALE;
+        }
 
 
         return result;
@@ -55,147 +87,63 @@ public:
                 float z = j + (chunkPosZ * TERRAIN_SIZE);
 
                 glm::vec3 vertexPosition = generateVertexPosition(noise, x, z);
+                glm::vec3 vertexColor = generateVertexColor(vertexPosition);
                 vertices[vertexIndex++] = vertexPosition.x;
                 vertices[vertexIndex++] = vertexPosition.y;
                 vertices[vertexIndex++] = vertexPosition.z;
-                if(vertexPosition.y < 8)
-                {
-                    colors[colorIndex++] = 0.1f * vertexPosition.y / 8.f;
-                    colors[colorIndex++] = 0.4f * vertexPosition.y / 8.f;
-                    colors[colorIndex++] = 0.8f * vertexPosition.y / 8.f;
-                }
-                else if(vertexPosition.y < 20)
-                {
-                    colors[colorIndex++] = 0.2f * vertexPosition.y / 20.f;
-                    colors[colorIndex++] = 0.7f * vertexPosition.y / 20.f;
-                    colors[colorIndex++] = 0.3f * vertexPosition.y / 20.f;
-                }
-                else
-                {
-                    colors[colorIndex++] = 0.6f * vertexPosition.y / 32.f;
-                    colors[colorIndex++] = 0.8f * vertexPosition.y / 32.f;;
-                    colors[colorIndex++] = 0.4f * vertexPosition.y / 32.f;;
-                }
-
-                
+                colors[colorIndex++] = vertexColor.r;
+                colors[colorIndex++] = vertexColor.g;
+                colors[colorIndex++] = vertexColor.b;
 
 
                 vertexPosition = generateVertexPosition(noise, x + 1, z);
+                vertexColor = generateVertexColor(vertexPosition);
                 vertices[vertexIndex++] = vertexPosition.x;
                 vertices[vertexIndex++] = vertexPosition.y;
                 vertices[vertexIndex++] = vertexPosition.z;
-                if(vertexPosition.y < 8)
-                {
-                    colors[colorIndex++] = 0.1f * vertexPosition.y / 8.f;
-                    colors[colorIndex++] = 0.4f * vertexPosition.y / 8.f;
-                    colors[colorIndex++] = 0.8f * vertexPosition.y / 8.f;
-                }
-                else if(vertexPosition.y < 20)
-                {
-                    colors[colorIndex++] = 0.2f * vertexPosition.y / 20.f;
-                    colors[colorIndex++] = 0.7f * vertexPosition.y / 20.f;
-                    colors[colorIndex++] = 0.3f * vertexPosition.y / 20.f;
-                }
-                else
-                {
-                    colors[colorIndex++] = 0.6f * vertexPosition.y / 32.f;
-                    colors[colorIndex++] = 0.8f * vertexPosition.y / 32.f;;
-                    colors[colorIndex++] = 0.4f * vertexPosition.y / 32.f;;
-                }
+                colors[colorIndex++] = vertexColor.r;
+                colors[colorIndex++] = vertexColor.g;
+                colors[colorIndex++] = vertexColor.b;
+
 
                 vertexPosition = generateVertexPosition(noise, x + 1, z + 1);
+                vertexColor = generateVertexColor(vertexPosition);
                 vertices[vertexIndex++] = vertexPosition.x;
                 vertices[vertexIndex++] = vertexPosition.y;
                 vertices[vertexIndex++] = vertexPosition.z;
-                if(vertexPosition.y < 8)
-                {
-                    colors[colorIndex++] = 0.1f * vertexPosition.y / 8.f;
-                    colors[colorIndex++] = 0.4f * vertexPosition.y / 8.f;
-                    colors[colorIndex++] = 0.8f * vertexPosition.y / 8.f;
-                }
-                else if(vertexPosition.y < 20)
-                {
-                    colors[colorIndex++] = 0.2f * vertexPosition.y / 20.f;
-                    colors[colorIndex++] = 0.7f * vertexPosition.y / 20.f;
-                    colors[colorIndex++] = 0.3f * vertexPosition.y / 20.f;
-                }
-                else
-                {
-                    colors[colorIndex++] = 0.6f * vertexPosition.y / 32.f;
-                    colors[colorIndex++] = 0.8f * vertexPosition.y / 32.f;;
-                    colors[colorIndex++] = 0.4f * vertexPosition.y / 32.f;;
-                }
+                colors[colorIndex++] = vertexColor.r;
+                colors[colorIndex++] = vertexColor.g;
+                colors[colorIndex++] = vertexColor.b;
 
 
                 vertexPosition = generateVertexPosition(noise, x, z);
+                vertexColor = generateVertexColor(vertexPosition);
                 vertices[vertexIndex++] = vertexPosition.x;
                 vertices[vertexIndex++] = vertexPosition.y;
                 vertices[vertexIndex++] = vertexPosition.z;
-                if(vertexPosition.y < 8)
-                {
-                    colors[colorIndex++] = 0.1f * vertexPosition.y / 8.f;
-                    colors[colorIndex++] = 0.4f * vertexPosition.y / 8.f;
-                    colors[colorIndex++] = 0.8f * vertexPosition.y / 8.f;
-                }
-                else if(vertexPosition.y < 20)
-                {
-                    colors[colorIndex++] = 0.2f * vertexPosition.y / 20.f;
-                    colors[colorIndex++] = 0.7f * vertexPosition.y / 20.f;
-                    colors[colorIndex++] = 0.3f * vertexPosition.y / 20.f;
-                }
-                else
-                {
-                    colors[colorIndex++] = 0.6f * vertexPosition.y / 32.f;
-                    colors[colorIndex++] = 0.8f * vertexPosition.y / 32.f;;
-                    colors[colorIndex++] = 0.4f * vertexPosition.y / 32.f;;
-                }
+                colors[colorIndex++] = vertexColor.r;
+                colors[colorIndex++] = vertexColor.g;
+                colors[colorIndex++] = vertexColor.b;
+
 
                 vertexPosition = generateVertexPosition(noise, x + 1, z + 1);
+                vertexColor = generateVertexColor(vertexPosition);
                 vertices[vertexIndex++] = vertexPosition.x;
                 vertices[vertexIndex++] = vertexPosition.y;
                 vertices[vertexIndex++] = vertexPosition.z;
-                if(vertexPosition.y < 8)
-                {
-                    colors[colorIndex++] = 0.1f * vertexPosition.y / 8.f;
-                    colors[colorIndex++] = 0.4f * vertexPosition.y / 8.f;
-                    colors[colorIndex++] = 0.8f * vertexPosition.y / 8.f;
-                }
-                else if(vertexPosition.y < 20)
-                {
-                    colors[colorIndex++] = 0.2f * vertexPosition.y / 20.f;
-                    colors[colorIndex++] = 0.7f * vertexPosition.y / 20.f;
-                    colors[colorIndex++] = 0.3f * vertexPosition.y / 20.f;
-                }
-                else
-                {
-                    colors[colorIndex++] = 0.6f * vertexPosition.y / 32.f;
-                    colors[colorIndex++] = 0.8f * vertexPosition.y / 32.f;;
-                    colors[colorIndex++] = 0.4f * vertexPosition.y / 32.f;
-                }
+                colors[colorIndex++] = vertexColor.r;
+                colors[colorIndex++] = vertexColor.g;
+                colors[colorIndex++] = vertexColor.b;                
 
 
                 vertexPosition = generateVertexPosition(noise, x, z + 1);
+                vertexColor = generateVertexColor(vertexPosition);
                 vertices[vertexIndex++] = vertexPosition.x;
                 vertices[vertexIndex++] = vertexPosition.y;
                 vertices[vertexIndex++] = vertexPosition.z;
-                if(vertexPosition.y < 8)
-                {
-                    colors[colorIndex++] = 0.1f * vertexPosition.y / 8.f;
-                    colors[colorIndex++] = 0.4f * vertexPosition.y / 8.f;
-                    colors[colorIndex++] = 0.8f * vertexPosition.y / 8.f;
-                }
-                else if(vertexPosition.y < 20)
-                {
-                    colors[colorIndex++] = 0.2f * vertexPosition.y / 20.f;
-                    colors[colorIndex++] = 0.7f * vertexPosition.y / 20.f;
-                    colors[colorIndex++] = 0.3f * vertexPosition.y / 20.f;
-                }
-                else
-                {
-                    colors[colorIndex++] = 0.6f * vertexPosition.y / 32.f;
-                    colors[colorIndex++] = 0.8f * vertexPosition.y / 32.f;;
-                    colors[colorIndex++] = 0.4f * vertexPosition.y / 32.f;;
-                }
+                colors[colorIndex++] = vertexColor.r;
+                colors[colorIndex++] = vertexColor.g;
+                colors[colorIndex++] = vertexColor.b;
             }
         }
 

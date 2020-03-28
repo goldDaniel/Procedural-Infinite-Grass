@@ -151,8 +151,9 @@ namespace Renderer
 
 
         FastNoise noise;
+        noise.SetFrequency(0.005);
 
-        int size = 4;
+        int size = 8;
         for(int x = -size; x < size; ++x)
         {
             for(int z = -size; z < size; ++z)

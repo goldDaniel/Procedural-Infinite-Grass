@@ -106,25 +106,14 @@ Mesh* Model::loadMesh(aiMesh* mesh, const aiScene* scene)
     material->Get(AI_MATKEY_COLOR_SPECULAR, color);
     result->material.specular = glm::vec4(color.r, color.g, color.b, 1.0);
 
-
-    std::cout << "=====BEFORE=====" << std::endl;
-    std::cout << "AMBIENT: " << result->material.ambient.r << ":" << result->material.ambient.g << ":" << result->material.ambient.b << std::endl;
-    std::cout << "DIFFUSE: " << result->material.diffuse.r << ":" << result->material.diffuse.g << ":" << result->material.diffuse.b << std::endl;
-    std::cout << "SPECULAR: " << result->material.specular.r << ":" << result->material.specular.g << ":" << result->material.specular.b << std::endl;
-
     //sometimes materials ambient component is 0
+    //just use some scalar of the diffuse because we want SOME color
     if(result->material.ambient.r < 0.1 && result->material.ambient.g < 0.1 && result->material.ambient.b < 0.1)
     {
-        result->material.ambient = result->material.diffuse * 0.5f;
+        result->material.ambient = result->material.diffuse * 0.2f;
     }
+    
 
-    std::cout << "=====AFTER=====" << std::endl;
-    std::cout << "AMBIENT: " << result->material.ambient.r << ":" << result->material.ambient.g << ":" << result->material.ambient.b << std::endl;
-    std::cout << "DIFFUSE: " << result->material.diffuse.r << ":" << result->material.diffuse.g << ":" << result->material.diffuse.b << std::endl;
-    std::cout << "SPECULAR: " << result->material.specular.r << ":" << result->material.specular.g << ":" << result->material.specular.b << std::endl;
-
-
-    std::cout << "\n\n\n" << std::endl;
 
     result->createOnGPU();
 
