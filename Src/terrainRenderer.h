@@ -19,27 +19,31 @@ private:
     const char* vertexSource = 
     "#version 330 core\n"
     "layout (location = 0) in vec3 aPos;\n"
+    "layout (location = 1) in vec3 aCol;\n"
 
     "uniform mat4 proj;\n"
     "uniform mat4 view;\n"
 
-    "out vec3 pos;"
+    "out vec3 color;\n"
+    "out vec3 pos;\n"
 
     "void main()\n"
     "{\n"
         "gl_Position = proj * view * vec4(aPos, 1.0);\n"
         "pos = aPos;\n"
+        "color = aCol;\n"  
     "}\n";
 
     const char* fragmentSource = 
     "#version 330 core\n"
 
+    "in vec3 color;\n"
     "in vec3 pos;\n"
     "out vec4 FragColor;\n"
 
     "void main()\n"
-    "{\n"             
-        "FragColor = vec4(vec3(0.2, 0.7, 0.3) * mod(pos.yyy, 1.f), 1.f);\n"
+    "{\n"           
+        "FragColor = vec4(color, 1.f);\n"
     "}\n";
 
     Shader* terrainShader;

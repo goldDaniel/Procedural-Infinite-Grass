@@ -152,9 +152,10 @@ namespace Renderer
 
         FastNoise noise;
 
-        for(int x = -2; x < 2; ++x)
+        int size = 4;
+        for(int x = -size; x < size; ++x)
         {
-            for(int z = -2; z < 2; ++z)
+            for(int z = -size; z < size; ++z)
             {   
                 chunks.push_back(new TerrainChunk(noise, x, z));
             }
