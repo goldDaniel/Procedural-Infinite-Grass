@@ -18,12 +18,14 @@ private:
 
     GLuint numVertices;
 
+    int chunkPosX;
+    int chunkPosZ;
+
     glm::vec3 generateVertexPosition(FastNoise& noise, int x, int z)
     {
         glm::vec3 result;
         result.x = x;
         result.z = z;
-
 
         //we blend several weighted noise values together here
         result.y = NOISE_HEIGHT_SCALE * 
@@ -44,7 +46,7 @@ private:
     {
         glm::vec3 result;
 
-        if(position.y < NOISE_HEIGHT_SCALE / 16.f)
+        if(position.y < NOISE_HEIGHT_SCALE / 8.f)
         {
             result.r = 0.1f;
             result.g = 0.2f;
@@ -67,9 +69,19 @@ private:
         return result;
     }
 
+    void pushToBuffer(float* buffer, int& index, glm::vec3 values)
+    {
+        buffer[index++] = values.x;
+        buffer[index++] = values.y;
+        buffer[index++] = values.z;
+    }
+
 public:
     TerrainChunk(FastNoise& noise, int chunkPosX, int chunkPosZ)
-    {
+    {   
+        this->chunkPosX = chunkPosX;
+        this->chunkPosZ = chunkPosZ;
+
         numVertices = 6 * TERRAIN_SIZE * TERRAIN_SIZE;
 
         //this can be quite large so create on heap
@@ -87,59 +99,33 @@ public:
 
                 glm::vec3 vertexPosition = generateVertexPosition(noise, x, z);
                 glm::vec3 vertexColor = generateVertexColor(vertexPosition);
-                vertices[vertexIndex++] = vertexPosition.x;
-                vertices[vertexIndex++] = vertexPosition.y;
-                vertices[vertexIndex++] = vertexPosition.z;
-                colors[colorIndex++] = vertexColor.r;
-                colors[colorIndex++] = vertexColor.g;
-                colors[colorIndex++] = vertexColor.b;
+                pushToBuffer(vertices, vertexIndex, vertexPosition);
+                pushToBuffer(colors, colorIndex, vertexColor);
 
                 vertexPosition = generateVertexPosition(noise, x + 1, z + 1);
                 vertexColor = generateVertexColor(vertexPosition);
-                vertices[vertexIndex++] = vertexPosition.x;
-                vertices[vertexIndex++] = vertexPosition.y;
-                vertices[vertexIndex++] = vertexPosition.z;
-                colors[colorIndex++] = vertexColor.r;
-                colors[colorIndex++] = vertexColor.g;
-                colors[colorIndex++] = vertexColor.b;
+                pushToBuffer(vertices, vertexIndex, vertexPosition);
+                pushToBuffer(colors, colorIndex, vertexColor);
 
                 vertexPosition = generateVertexPosition(noise, x + 1, z);
                 vertexColor = generateVertexColor(vertexPosition);
-                vertices[vertexIndex++] = vertexPosition.x;
-                vertices[vertexIndex++] = vertexPosition.y;
-                vertices[vertexIndex++] = vertexPosition.z;
-                colors[colorIndex++] = vertexColor.r;
-                colors[colorIndex++] = vertexColor.g;
-                colors[colorIndex++] = vertexColor.b;
-                
-
+                pushToBuffer(vertices, vertexIndex, vertexPosition);
+                pushToBuffer(colors, colorIndex, vertexColor);
 
                 vertexPosition = generateVertexPosition(noise, x, z);
                 vertexColor = generateVertexColor(vertexPosition);
-                vertices[vertexIndex++] = vertexPosition.x;
-                vertices[vertexIndex++] = vertexPosition.y;
-                vertices[vertexIndex++] = vertexPosition.z;
-                colors[colorIndex++] = vertexColor.r;
-                colors[colorIndex++] = vertexColor.g;
-                colors[colorIndex++] = vertexColor.b;
+                pushToBuffer(vertices, vertexIndex, vertexPosition);
+                pushToBuffer(colors, colorIndex, vertexColor);
 
                 vertexPosition = generateVertexPosition(noise, x, z + 1);
                 vertexColor = generateVertexColor(vertexPosition);
-                vertices[vertexIndex++] = vertexPosition.x;
-                vertices[vertexIndex++] = vertexPosition.y;
-                vertices[vertexIndex++] = vertexPosition.z;
-                colors[colorIndex++] = vertexColor.r;
-                colors[colorIndex++] = vertexColor.g;
-                colors[colorIndex++] = vertexColor.b;
+                pushToBuffer(vertices, vertexIndex, vertexPosition);
+                pushToBuffer(colors, colorIndex, vertexColor);
 
                 vertexPosition = generateVertexPosition(noise, x + 1, z + 1);
                 vertexColor = generateVertexColor(vertexPosition);
-                vertices[vertexIndex++] = vertexPosition.x;
-                vertices[vertexIndex++] = vertexPosition.y;
-                vertices[vertexIndex++] = vertexPosition.z;
-                colors[colorIndex++] = vertexColor.r;
-                colors[colorIndex++] = vertexColor.g;
-                colors[colorIndex++] = vertexColor.b;                
+                pushToBuffer(vertices, vertexIndex, vertexPosition);
+                pushToBuffer(colors, colorIndex, vertexColor);       
             }
         }
 
@@ -187,7 +173,7 @@ public:
     }
 };
 
-int TerrainChunk::TERRAIN_SIZE = 64;
-int TerrainChunk::NOISE_HEIGHT_SCALE = 32;
+int TerrainChunk::TERRAIN_SIZE = 16;
+int TerrainChunk::NOISE_HEIGHT_SCALE = 64;
 
 #endif

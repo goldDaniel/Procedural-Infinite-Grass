@@ -1,6 +1,8 @@
 #ifndef TERRAIN_GRASS_RENDERER_H
 #define TERRAIN_GRASS_RENDERER_H
 
+#include <glm/gtc/random.hpp>
+
 #include "glad/glad.h"
 
 #include "fastnoise/FastNoise.h"
@@ -153,9 +155,10 @@ namespace Renderer
 
 
         FastNoise noise;
+        noise.SetSeed(glm::linearRand<int>(1, 100000));
         noise.SetFrequency(0.005);
 
-        int size = 8;
+        int size = 64;
         for(int x = -size; x < size; ++x)
         {
             for(int z = -size; z < size; ++z)
