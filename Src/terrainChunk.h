@@ -31,10 +31,10 @@ private:
         result.y = NOISE_HEIGHT_SCALE * 
                     (    
                         (
-                            noise.GetValue(x * 0.5f, z * 0.5f) +
-                            noise.GetValue(x * 0.75f,  z * 0.75f) +
                             noise.GetValue(x * 1.f, z * 1.f) +
-                            noise.GetValue(x * 1.25f,   z * 1.25f)
+                            noise.GetValue(x * 2.f, z * 2.f) +
+                            noise.GetValue(x * 3.f, z * 3.f) +
+                            noise.GetValue(x * 4.f, z * 4.f)
                         ) / 4.f + 1 / 2.f
                     );
 
@@ -173,7 +173,7 @@ public:
     }
 };
 
-int TerrainChunk::TERRAIN_SIZE = 16;
-int TerrainChunk::NOISE_HEIGHT_SCALE = 64;
+int TerrainChunk::TERRAIN_SIZE = 32;
+int TerrainChunk::NOISE_HEIGHT_SCALE = 128;
 
 #endif
