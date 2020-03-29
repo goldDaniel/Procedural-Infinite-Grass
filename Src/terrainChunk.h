@@ -9,8 +9,7 @@ class TerrainChunk
 {
 private:
 
-    static int NOISE_HEIGHT_SCALE;
-    static int TERRAIN_SIZE;
+    
 
     GLuint VAO;
     GLuint positionBuffer;
@@ -77,6 +76,9 @@ private:
     }
 
 public:
+    static int NOISE_HEIGHT_SCALE;
+    static int TERRAIN_SIZE;
+
     TerrainChunk(FastNoise& noise, int chunkPosX, int chunkPosZ)
     {   
         this->chunkPosX = chunkPosX;
@@ -160,6 +162,16 @@ public:
     {
         glDeleteBuffers(1, &positionBuffer);
         glDeleteVertexArrays(1, &VAO);
+    }
+
+    int getChunkX()
+    {
+        return chunkPosX;
+    }
+
+    int getChunkZ()
+    {
+        return chunkPosZ;
     }
 
     GLuint getVertexArray()

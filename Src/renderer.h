@@ -10,6 +10,7 @@
 #include "camera.h"
 #include "shader.h"
 
+#include "shapeRenderer.h"
 #include "skyboxRenderer.h"
 #include "terrainRenderer.h"
 #include "terrainChunk.h"
@@ -117,8 +118,10 @@ namespace Renderer
         "FragColor =  vec4(result + (light.color * 0.25f), 1.f);\n"
     "}\n";
 
+    ShapeRenderer* shapeRenderer;
     TerrainRenderer* terrainRenderer;
     SkyboxRenderer* skyboxRenderer;
+
     Shader* shader;
 
     Model* model;
@@ -150,6 +153,7 @@ namespace Renderer
         
         model = new Model("Assets/Kenney/grass.obj");
 
+        shapeRenderer = new ShapeRenderer();
         terrainRenderer = new TerrainRenderer();
         skyboxRenderer = new SkyboxRenderer();
 
@@ -182,6 +186,26 @@ namespace Renderer
         elapsed += 0.01f;
 
         glm::mat4 proj = glm::perspective(45.f, 1280.f/720.f, 0.01f, 10000.f);
+
+
+        shapeRenderer->setProjectionMatrix(proj);
+
+        shapeRenderer->begin(view);
+        for(TerrainChunk* chunk : chunks)
+        {
+            glm::vec3 min;
+            min.x = chunk->getChunkX() * TerrainChunk::TERRAIN_SIZE;
+            min.y = 0;
+            min.z = chunk->getChunkZ() * TerrainChunk::TERRAIN_SIZE;
+
+            glm::vec3 max;
+            max.x = chunk->getChunkX() * TerrainChunk::TERRAIN_SIZE + TerrainChunk::TERRAIN_SIZE;
+            max.y = TerrainChunk::NOISE_HEIGHT_SCALE;
+            max.z = chunk->getChunkZ() * TerrainChunk::TERRAIN_SIZE + TerrainChunk::TERRAIN_SIZE;
+            
+            shapeRenderer->box(min, max);
+        }
+        shapeRenderer->end();
 
 
         skyboxRenderer->draw(view);

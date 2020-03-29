@@ -6,6 +6,8 @@
 #include <string.h> // for memset
 #include "glad/glad.h"
 
+#include "shader.h"
+
 class ShapeRenderer
 {
 private:
@@ -13,7 +15,7 @@ private:
     const char* vertexSource = 
     "#version 330 core\n"
     "layout (location = 0) in vec3 aPos;\n"
-    "layout (location = 0) in vec3 aCol;\n"
+    "layout (location = 1) in vec3 aCol;\n"
 
     "out vec3 color;\n"
 
@@ -36,7 +38,7 @@ private:
 
     "void main()\n"
     "{\n"             
-        "FragColor = color;\n"
+        "FragColor = vec4(color, 1.f);\n"
     "}\n";
 
     static const int MAX_VERTICES = 100000;
@@ -57,6 +59,8 @@ private:
 
     bool running = false;
 
+    Shader* shader;
+
 public:
 
     ShapeRenderer()
@@ -66,6 +70,8 @@ public:
 
         currentColor = glm::vec3(1.f);
 
+        shader = new Shader(vertexSource, fragmentSource);
+
         glGenVertexArrays(1, &VAO);
         glGenBuffers(1, &VBO);
 
@@ -73,9 +79,9 @@ public:
 
         glBindBuffer(GL_ARRAY_BUFFER, VBO);
         
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
         glEnableVertexAttribArray(0);
-        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)(3*sizeof(float)));
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3*sizeof(float)));
         glEnableVertexAttribArray(1);
         
         glBindBuffer(GL_ARRAY_BUFFER, 0); 
@@ -107,6 +113,51 @@ public:
         memset(buffer, 0, MAX_VERTICES * VALUES_PER_VERTEX);
     }
 
+    void box(glm::vec3 min, glm::vec3 max)
+    {
+        //LINES ALONG Z////////////////////////////////////////
+        line(min.x, min.y, min.z, 
+             min.x, min.y, max.z);
+
+        line(max.x, min.y, min.z, 
+             max.x, min.y, max.z);
+
+        line(min.x, max.y, min.z, 
+             min.x, max.y, max.z);
+
+        line(max.x, max.y, min.z, 
+             max.x, max.y, max.z);
+
+        //LINES ALONG X//////////////////////////////////////////
+        line(min.x, min.y, min.z,
+             max.x, min.y, min.z);
+
+        line(min.x, min.y, max.z,
+             max.x, min.y, max.z);
+
+        line(min.x, max.y, min.z,
+             max.x, max.y, min.z);
+
+        line(min.x, max.y, max.z,
+             max.x, max.y, max.z);
+
+        //LINES ALONG Y//////////////////////////////////////////
+        line(min.x, min.y, min.z,
+             min.x, max.y, min.z);
+
+        line(max.x, min.y, min.z,
+             max.x, max.y, min.z);
+
+        line(min.x, min.y, max.z,
+             min.x, max.y, max.z);
+
+        line(max.x, min.y, max.z,
+             max.x, max.y, max.z);
+
+            
+        
+    }
+
     void line(float x0, float y0, float z0, float x1, float y1, float z1)
     {
         buffer[currentIndex++] = x0;
@@ -129,6 +180,12 @@ public:
         assert(running);
         running = false;
 
+        shader->use();
+        shader->setMat4("proj", projection);
+        shader->setMat4("view", view);
+
+        glDisable(GL_CULL_FACE);
+
         glBindVertexArray(VAO);
 
         glBindBuffer(GL_ARRAY_BUFFER, VBO);
@@ -138,6 +195,10 @@ public:
 
         glBindBuffer(GL_ARRAY_BUFFER, 0);
         glBindVertexArray(0);
+
+
+        currentIndex = 0;
+        glEnable(GL_CULL_FACE);
     }
 
     void setColor(glm::vec3 color)
