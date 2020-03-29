@@ -13,31 +13,30 @@ private:
     const char* vertexSource = 
     "#version 330 core\n"
     "layout (location = 0) in vec3 aPos;\n"
+    "layout (location = 0) in vec3 aCol;\n"
 
-    "out vec3 texCoords;\n"
+    "out vec3 color;\n"
 
     "uniform mat4 proj;\n"
     "uniform mat4 view;\n"
 
     "void main()\n"
     "{\n"
-        "texCoords = aPos;\n"
+        "color = aCol;\n"
         "vec4 pos = proj * view * vec4(aPos, 1.0);\n"
-        "gl_Position = pos.xyww;\n"
+        "gl_Position = pos;\n"
     "}\n";
 
     const char* fragmentSource = 
     "#version 330 core\n"
     
-    "in vec3 texCoords;\n"
-
-    "uniform samplerCube cubemap;\n"
+    "in vec3 color;\n"
 
     "out vec4 FragColor;\n"
 
     "void main()\n"
     "{\n"             
-        "FragColor = texture(cubemap, texCoords);\n"
+        "FragColor = color;\n"
     "}\n";
 
     static const int MAX_VERTICES = 100000;
