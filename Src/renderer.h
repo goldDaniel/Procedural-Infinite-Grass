@@ -164,9 +164,9 @@ namespace Renderer
 
         FastNoise noise;
         noise.SetSeed(glm::linearRand<int>(1, 100000));
-        noise.SetFrequency(0.0025);
+        noise.SetFrequency(0.001);
 
-        int size = 16;
+        int size = 4;
         for(int x = -size; x < size; ++x)
         {
             for(int z = -size; z < size; ++z)

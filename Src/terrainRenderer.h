@@ -19,31 +19,44 @@ private:
     const char* vertexSource = 
     "#version 330 core\n"
     "layout (location = 0) in vec3 aPos;\n"
-    "layout (location = 1) in vec3 aCol;\n"
+    "layout (location = 1) in vec3 aNor;\n"
+    "layout (location = 2) in vec3 aCol;\n"
 
     "uniform mat4 proj;\n"
     "uniform mat4 view;\n"
 
-    "out vec3 color;\n"
+    "out vec3 fragPos;\n"
     "out vec3 pos;\n"
+    "out vec3 nor;\n"
+    "out vec3 color;\n"
+    
+    
 
     "void main()\n"
     "{\n"
         "gl_Position = proj * view * vec4(aPos, 1.0);\n"
+        "fragPos = vec3(view * vec4(aPos, 1.0));\n"
         "pos = aPos;\n"
+        "nor = aNor;\n"
         "color = aCol;\n"  
     "}\n";
 
     const char* fragmentSource = 
     "#version 330 core\n"
-
-    "in vec3 color;\n"
+    
+    "in vec3 fragPos;\n"
     "in vec3 pos;\n"
+    "in vec3 nor;\n"
+    "in vec3 color;\n"
+    
     "out vec4 FragColor;\n"
+
 
     "void main()\n"
     "{\n"           
-        "FragColor = vec4(color, 1.f);\n"
+        "vec3 lightDir = vec3(0, 1, 1);\n"
+        "float d = max(dot(normalize(nor), lightDir), 0.0);\n"
+        "FragColor = vec4(d*color, 1.f);\n"
     "}\n";
 
     Shader* terrainShader;
@@ -58,7 +71,7 @@ public:
 
     ~TerrainRenderer()
     {
-
+        delete terrainShader;
     }
 
     void draw(glm::mat4 view, std::vector<TerrainChunk*>& chunks)

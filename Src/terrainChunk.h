@@ -13,6 +13,7 @@ private:
 
     GLuint VAO;
     GLuint positionBuffer;
+    GLuint normalBuffer;
     GLuint colorBuffer;
 
     GLuint numVertices;
@@ -39,6 +40,11 @@ private:
 
 
         return result;
+    }
+
+    glm::vec3 generateVertexNormal(glm::vec3 A, glm::vec3 B, glm::vec3 C)
+    {
+        return glm::normalize(cross(B - A, C - A));
     }
 
     glm::vec3 generateVertexColor(glm::vec3 position)
@@ -88,9 +94,11 @@ public:
 
         //this can be quite large so create on heap
         float* vertices = new float[18 * TERRAIN_SIZE * TERRAIN_SIZE];
+        float* normals  = new float[18 * TERRAIN_SIZE * TERRAIN_SIZE];
         float* colors   = new float[18 * TERRAIN_SIZE * TERRAIN_SIZE];
 
         int vertexIndex = 0;
+        int normalIndex = 0;
         int colorIndex = 0;
         for(int i = 0; i < TERRAIN_SIZE; ++i)
         {
@@ -99,41 +107,58 @@ public:
                 float x = i + (chunkPosX * TERRAIN_SIZE);
                 float z = j + (chunkPosZ * TERRAIN_SIZE);
 
-                glm::vec3 vertexPosition = generateVertexPosition(noise, x, z);
-                glm::vec3 vertexColor = generateVertexColor(vertexPosition);
-                pushToBuffer(vertices, vertexIndex, vertexPosition);
-                pushToBuffer(colors, colorIndex, vertexColor);
+                
+                glm::vec3 posA = generateVertexPosition(noise, x, z);
+                glm::vec3 posB = generateVertexPosition(noise, x + 1, z + 1);
+                glm::vec3 posC = generateVertexPosition(noise, x + 1, z);
 
-                vertexPosition = generateVertexPosition(noise, x + 1, z + 1);
-                vertexColor = generateVertexColor(vertexPosition);
-                pushToBuffer(vertices, vertexIndex, vertexPosition);
-                pushToBuffer(colors, colorIndex, vertexColor);
+                glm::vec3 colA = generateVertexColor(posA);
+                glm::vec3 colB = generateVertexColor(posB);
+                glm::vec3 colC = generateVertexColor(posC);
+                //we use flat shading, so 1 normal value per triangle primitive
+                glm::vec3 normal = generateVertexNormal(posA, posB, posC);
 
-                vertexPosition = generateVertexPosition(noise, x + 1, z);
-                vertexColor = generateVertexColor(vertexPosition);
-                pushToBuffer(vertices, vertexIndex, vertexPosition);
-                pushToBuffer(colors, colorIndex, vertexColor);
+                pushToBuffer(vertices, vertexIndex, posA);
+                pushToBuffer(normals, normalIndex, normal);
+                pushToBuffer(colors, colorIndex, colA);
 
-                vertexPosition = generateVertexPosition(noise, x, z);
-                vertexColor = generateVertexColor(vertexPosition);
-                pushToBuffer(vertices, vertexIndex, vertexPosition);
-                pushToBuffer(colors, colorIndex, vertexColor);
+                pushToBuffer(vertices, vertexIndex, posB);
+                pushToBuffer(normals, normalIndex, normal);
+                pushToBuffer(colors, colorIndex, colB);
 
-                vertexPosition = generateVertexPosition(noise, x, z + 1);
-                vertexColor = generateVertexColor(vertexPosition);
-                pushToBuffer(vertices, vertexIndex, vertexPosition);
-                pushToBuffer(colors, colorIndex, vertexColor);
+                pushToBuffer(vertices, vertexIndex, posC);
+                pushToBuffer(normals, normalIndex, normal);
+                pushToBuffer(colors, colorIndex, colC);
 
-                vertexPosition = generateVertexPosition(noise, x + 1, z + 1);
-                vertexColor = generateVertexColor(vertexPosition);
-                pushToBuffer(vertices, vertexIndex, vertexPosition);
-                pushToBuffer(colors, colorIndex, vertexColor);       
+
+                posA = generateVertexPosition(noise, x, z);
+                posB = generateVertexPosition(noise, x, z + 1);
+                posC = generateVertexPosition(noise, x + 1, z + 1);
+
+                colA = generateVertexColor(posA);
+                colB = generateVertexColor(posB);
+                colC = generateVertexColor(posC);
+                //we use flat shading, so 1 normal value per triangle primitive
+                normal = generateVertexNormal(posA, posB, posC);
+
+                pushToBuffer(vertices, vertexIndex, posA);
+                pushToBuffer(normals, normalIndex, normal);
+                pushToBuffer(colors, colorIndex, colA);
+
+                pushToBuffer(vertices, vertexIndex, posB);
+                pushToBuffer(normals, normalIndex, normal);
+                pushToBuffer(colors, colorIndex, colB);
+
+                pushToBuffer(vertices, vertexIndex, posC);
+                pushToBuffer(normals, normalIndex, normal);
+                pushToBuffer(colors, colorIndex, colC);     
             }
         }
 
 
         glGenVertexArrays(1, &VAO);
         glGenBuffers(1, &positionBuffer);
+        glGenBuffers(1, &normalBuffer);
         glGenBuffers(1, &colorBuffer);
        
         glBindVertexArray(VAO);
@@ -143,10 +168,15 @@ public:
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
         glEnableVertexAttribArray(0);
 
-        glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);
-        glBufferData(GL_ARRAY_BUFFER, 18 * TERRAIN_SIZE * TERRAIN_SIZE * sizeof(float), &colors[0], GL_STATIC_DRAW);
+        glBindBuffer(GL_ARRAY_BUFFER, normalBuffer);
+        glBufferData(GL_ARRAY_BUFFER, 18 * TERRAIN_SIZE * TERRAIN_SIZE * sizeof(float), &normals[0], GL_STATIC_DRAW);
         glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
         glEnableVertexAttribArray(1);
+
+        glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);
+        glBufferData(GL_ARRAY_BUFFER, 18 * TERRAIN_SIZE * TERRAIN_SIZE * sizeof(float), &colors[0], GL_STATIC_DRAW);
+        glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+        glEnableVertexAttribArray(2);
 
         glBindBuffer(GL_ARRAY_BUFFER, 0); 
 
@@ -155,6 +185,7 @@ public:
         
 
         delete vertices;
+        delete normals;
         delete colors;
     }
 
@@ -185,7 +216,7 @@ public:
     }
 };
 
-int TerrainChunk::TERRAIN_SIZE = 64;
+int TerrainChunk::TERRAIN_SIZE = 128;
 int TerrainChunk::NOISE_HEIGHT_SCALE = 128;
 
 #endif
