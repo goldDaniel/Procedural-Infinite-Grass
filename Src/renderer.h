@@ -133,13 +133,17 @@ namespace Renderer
 
     float elapsed = 0;
 
+    SDL_Window* window;
+
     void Dispose()
     {
         delete shader;
     }
 
-    void Init()
+    void Init(SDL_Window* w)
     {
+        window = w;
+
         shader = new Shader(vertexShaderSource, fragmentShaderSource);
         glEnable(GL_DEPTH_TEST);
         
@@ -180,6 +184,10 @@ namespace Renderer
 
     void Draw(glm:: mat4 view)
     {
+        int w,h;
+        SDL_GetWindowSize(window, &w, &h);
+        glViewport(0, 0, w, h);
+
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 

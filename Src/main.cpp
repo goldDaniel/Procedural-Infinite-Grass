@@ -52,7 +52,7 @@ void initScreen(const char * caption)
 		window = SDL_CreateWindow(
 			caption, 
 			SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 
-			SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_OPENGL
+			SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE
 		);
 	}
 	if(window == NULL)
@@ -95,7 +95,7 @@ int main()
 	initScreen("OpenGL 3.3");
 	
 	cam = new Camera(glm::vec3(0, 128, 0));
-	Renderer::Init();
+	Renderer::Init(window);
 	
 	SDL_Event event;
 	

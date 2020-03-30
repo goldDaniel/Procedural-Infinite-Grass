@@ -60,6 +60,32 @@ private:
     bool running = false;
 
     Shader* shader;
+    
+    void flush()
+    {
+        if(currentIndex == 0) return;
+
+        assert(running);
+        assert(currentIndex % 6 == 0);
+        assert(currentIndex <= MAX_VERTICES * VALUES_PER_VERTEX);
+
+        glEnable(GL_DEPTH_TEST);
+
+        shader->use();
+        shader->setMat4("proj", projection);
+        shader->setMat4("view", view);
+
+        glBindVertexArray(VAO);
+
+        glBindBuffer(GL_ARRAY_BUFFER, VBO);
+        glBufferData(GL_ARRAY_BUFFER, MAX_VERTICES * VALUES_PER_VERTEX * sizeof(float), &buffer[0], GL_DYNAMIC_DRAW);
+
+        glDrawArrays(GL_LINES, 0, currentIndex / VALUES_PER_VERTEX);
+
+        
+
+        currentIndex = 0;
+    }
 
 public:
 
@@ -115,6 +141,8 @@ public:
 
     void box(glm::vec3 min, glm::vec3 max)
     {
+        assert(running);
+
         //LINES ALONG Z////////////////////////////////////////
         line(min.x, min.y, min.z, 
              min.x, min.y, max.z);
@@ -160,6 +188,13 @@ public:
 
     void line(float x0, float y0, float z0, float x1, float y1, float z1)
     {
+        assert(running);
+
+        if(currentIndex == MAX_VERTICES * VALUES_PER_VERTEX)
+        {
+            flush();
+        }
+
         buffer[currentIndex++] = x0;
         buffer[currentIndex++] = y0;
         buffer[currentIndex++] = z0;
@@ -178,27 +213,12 @@ public:
     void end()
     {
         assert(running);
+        
+        flush();
+
         running = false;
-
-        shader->use();
-        shader->setMat4("proj", projection);
-        shader->setMat4("view", view);
-
-        glDisable(GL_CULL_FACE);
-
-        glBindVertexArray(VAO);
-
-        glBindBuffer(GL_ARRAY_BUFFER, VBO);
-        glBufferData(GL_ARRAY_BUFFER, MAX_VERTICES * VALUES_PER_VERTEX * sizeof(float), &buffer[0], GL_DYNAMIC_DRAW);
-
-        glDrawArrays(GL_LINES, 0, currentIndex / VALUES_PER_VERTEX);
-
         glBindBuffer(GL_ARRAY_BUFFER, 0);
         glBindVertexArray(0);
-
-
-        currentIndex = 0;
-        glEnable(GL_CULL_FACE);
     }
 
     void setColor(glm::vec3 color)

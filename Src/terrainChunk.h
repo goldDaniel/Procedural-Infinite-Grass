@@ -185,7 +185,7 @@ public:
     }
 };
 
-int TerrainChunk::TERRAIN_SIZE = 32;
+int TerrainChunk::TERRAIN_SIZE = 64;
 int TerrainChunk::NOISE_HEIGHT_SCALE = 128;
 
 #endif
