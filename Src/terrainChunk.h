@@ -8,9 +8,10 @@
 class TerrainChunk
 {
 private:
-
     
-
+    static int VALUES_PER_VERTEX;
+    
+    
     GLuint VAO;
     GLuint positionBuffer;
     GLuint normalBuffer;
@@ -21,23 +22,39 @@ private:
     int chunkPosX;
     int chunkPosZ;
 
+    glm::vec3 worldPosMin;
+    glm::vec3 worldPosMax;
+
+    bool createdOnGPU = false;
+    
+    float* positions = nullptr;
+    float* normals = nullptr;
+    float* colors = nullptr;
+
+    float lerp(float a, float b, float t)
+    {
+        return a * (1.f - t) + b * t;
+    }
+
     glm::vec3 generateVertexPosition(FastNoise& noise, int x, int z)
     {
         glm::vec3 result;
         result.x = x;
         result.z = z;
 
-        //we blend several weighted noise values together here
-        result.y = NOISE_HEIGHT_SCALE * 
-                    (    
-                        (
-                            noise.GetValue(x * 1.f, z * 1.f) +
-                            noise.GetValue(x * 2.f, z * 2.f) +
-                            noise.GetValue(x * 3.f, z * 3.f) +
-                            noise.GetValue(x * 4.f, z * 4.f)
-                        ) / 4.f + 1 / 2.f
-                    );
 
+        float sample0 = ((noise.GetValue(x * 0.25f, z * 0.25f) + 1.f) / 2.f);
+        float sample1 = ((noise.GetValue(x * 2, z * 4) + 1.f) / 2.f);
+        float sample2 = ((noise.GetValue(x * 3, z * 3) + 1.f) / 2.f);
+        float sample3 = ((noise.GetValue(x * 4, z * 4) + 1.f) / 2.f);
+        
+
+        result.y = sample0 * 0.6f  + 
+                   sample1 * 0.2f  + 
+                   sample2 * 0.15f + 
+                   sample3 * 0.05f;
+
+        result.y *= NOISE_HEIGHT_SCALE;
 
         return result;
     }
@@ -49,29 +66,7 @@ private:
 
     glm::vec3 generateVertexColor(glm::vec3 position)
     {
-        glm::vec3 result;
-
-        if(position.y < NOISE_HEIGHT_SCALE / 8.f)
-        {
-            result.r = 0.1f;
-            result.g = 0.2f;
-            result.b = 0.3f;
-        }
-        else if(position.y < NOISE_HEIGHT_SCALE / 2)
-        {
-            result.r = 0.2f * position.y / NOISE_HEIGHT_SCALE / 2.f;
-            result.g = 0.7f * position.y / NOISE_HEIGHT_SCALE / 2.f;
-            result.b = 0.3f * position.y / NOISE_HEIGHT_SCALE / 2.f;
-        }
-        else
-        {
-            result.r = 0.6f * position.y / NOISE_HEIGHT_SCALE;
-            result.g = 0.8f * position.y / NOISE_HEIGHT_SCALE;
-            result.b = 0.4f * position.y / NOISE_HEIGHT_SCALE;
-        }
-
-
-        return result;
+        return glm::vec3(0.2f, 0.2f + position.y / NOISE_HEIGHT_SCALE, 0.4f);
     }
 
     void pushToBuffer(float* buffer, int& index, glm::vec3 values)
@@ -81,22 +76,8 @@ private:
         buffer[index++] = values.z;
     }
 
-public:
-    static int NOISE_HEIGHT_SCALE;
-    static int TERRAIN_SIZE;
-
-    TerrainChunk(FastNoise& noise, int chunkPosX, int chunkPosZ)
-    {   
-        this->chunkPosX = chunkPosX;
-        this->chunkPosZ = chunkPosZ;
-
-        numVertices = 6 * TERRAIN_SIZE * TERRAIN_SIZE;
-
-        //this can be quite large so create on heap
-        float* vertices = new float[18 * TERRAIN_SIZE * TERRAIN_SIZE];
-        float* normals  = new float[18 * TERRAIN_SIZE * TERRAIN_SIZE];
-        float* colors   = new float[18 * TERRAIN_SIZE * TERRAIN_SIZE];
-
+    void generateChunkTerrain(FastNoise& noise, float* vertices, float* normals, float* colors)
+    {
         int vertexIndex = 0;
         int normalIndex = 0;
         int colorIndex = 0;
@@ -154,39 +135,37 @@ public:
                 pushToBuffer(colors, colorIndex, colC);     
             }
         }
+    }
 
+    
 
-        glGenVertexArrays(1, &VAO);
-        glGenBuffers(1, &positionBuffer);
-        glGenBuffers(1, &normalBuffer);
-        glGenBuffers(1, &colorBuffer);
-       
-        glBindVertexArray(VAO);
+public:
+    static int NOISE_HEIGHT_SCALE;
+    static int TERRAIN_SIZE;
+    static int SPACE_BETWEEN_VERTICES;
 
-        glBindBuffer(GL_ARRAY_BUFFER, positionBuffer);
-        glBufferData(GL_ARRAY_BUFFER, 18 * TERRAIN_SIZE * TERRAIN_SIZE * sizeof(float), &vertices[0], GL_STATIC_DRAW);
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-        glEnableVertexAttribArray(0);
+    TerrainChunk(FastNoise& noise, int chunkPosX, int chunkPosZ)
+    {   
+        this->chunkPosX = chunkPosX;
+        this->chunkPosZ = chunkPosZ;
 
-        glBindBuffer(GL_ARRAY_BUFFER, normalBuffer);
-        glBufferData(GL_ARRAY_BUFFER, 18 * TERRAIN_SIZE * TERRAIN_SIZE * sizeof(float), &normals[0], GL_STATIC_DRAW);
-        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-        glEnableVertexAttribArray(1);
+        this->worldPosMin.x = chunkPosX * TERRAIN_SIZE;
+        this->worldPosMin.y = 0;
+        this->worldPosMin.z = chunkPosZ * TERRAIN_SIZE;
 
-        glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);
-        glBufferData(GL_ARRAY_BUFFER, 18 * TERRAIN_SIZE * TERRAIN_SIZE * sizeof(float), &colors[0], GL_STATIC_DRAW);
-        glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-        glEnableVertexAttribArray(2);
+        this->worldPosMax.x = (chunkPosX + 1) * TERRAIN_SIZE;
+        this->worldPosMax.y = NOISE_HEIGHT_SCALE;
+        this->worldPosMax.z = (chunkPosZ + 1) * TERRAIN_SIZE;
 
-        glBindBuffer(GL_ARRAY_BUFFER, 0); 
+        numVertices = 6 * TERRAIN_SIZE * TERRAIN_SIZE;
 
-        glBindVertexArray(0);
+        //this can be quite large so create on heap
+        //NOTE: these get deleted in createOnGPI
+        positions = new float[VALUES_PER_VERTEX * TERRAIN_SIZE * TERRAIN_SIZE];
+        normals  = new float[VALUES_PER_VERTEX * TERRAIN_SIZE * TERRAIN_SIZE];
+        colors   = new float[VALUES_PER_VERTEX * TERRAIN_SIZE * TERRAIN_SIZE];
 
-        
-
-        delete vertices;
-        delete normals;
-        delete colors;
+        generateChunkTerrain(noise, positions, normals, colors);
     }
 
     ~TerrainChunk()
@@ -205,6 +184,16 @@ public:
         return chunkPosZ;
     }
 
+    glm::vec3 getWorldMin()
+    {
+        return worldPosMin;
+    }
+
+    glm::vec3 getWorldMax()
+    {
+        return worldPosMax;
+    }
+
     GLuint getVertexArray()
     {
         return VAO;
@@ -214,9 +203,48 @@ public:
     {
         return numVertices;
     }
+
+    void createOnGPU()
+    {
+        if(createdOnGPU) return;
+
+        glGenVertexArrays(1, &VAO);
+        glGenBuffers(1, &positionBuffer);
+        glGenBuffers(1, &normalBuffer);
+        glGenBuffers(1, &colorBuffer);
+       
+        glBindVertexArray(VAO);
+
+        glBindBuffer(GL_ARRAY_BUFFER, positionBuffer);
+        glBufferData(GL_ARRAY_BUFFER, VALUES_PER_VERTEX * TERRAIN_SIZE * TERRAIN_SIZE * sizeof(float), &positions[0], GL_STATIC_DRAW);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+        glEnableVertexAttribArray(0);
+
+        glBindBuffer(GL_ARRAY_BUFFER, normalBuffer);
+        glBufferData(GL_ARRAY_BUFFER, VALUES_PER_VERTEX * TERRAIN_SIZE * TERRAIN_SIZE * sizeof(float), &normals[0], GL_STATIC_DRAW);
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+        glEnableVertexAttribArray(1);
+
+        glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);
+        glBufferData(GL_ARRAY_BUFFER, VALUES_PER_VERTEX * TERRAIN_SIZE * TERRAIN_SIZE * sizeof(float), &colors[0], GL_STATIC_DRAW);
+        glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+        glEnableVertexAttribArray(2);
+
+        glBindBuffer(GL_ARRAY_BUFFER, 0); 
+
+        glBindVertexArray(0);
+
+        createdOnGPU = true;
+
+        delete positions;
+        delete normals;
+        delete colors;
+    }
 };
 
 int TerrainChunk::TERRAIN_SIZE = 128;
 int TerrainChunk::NOISE_HEIGHT_SCALE = 128;
+
+int TerrainChunk::VALUES_PER_VERTEX = 18;
 
 #endif

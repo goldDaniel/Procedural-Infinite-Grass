@@ -54,9 +54,10 @@ private:
 
     "void main()\n"
     "{\n"           
-        "vec3 lightDir = vec3(0, 1, 1);\n"
+        "vec3 lightDir = vec3(1, 0.5, -1);\n"
+        "lightDir = normalize(lightDir);\n"
         "float d = max(dot(normalize(nor), lightDir), 0.0);\n"
-        "FragColor = vec4(d*color, 1.f);\n"
+        "FragColor = vec4(0.75*d*color, 1.f);\n"
     "}\n";
 
     Shader* terrainShader;
@@ -76,8 +77,10 @@ public:
 
     void draw(glm::mat4 view, std::vector<TerrainChunk*>& chunks)
     {
+        glEnable(GL_DEPTH_TEST);
+
         terrainShader->use();
-        glm::mat4 proj = glm::perspective(45.f, 1280.f/720.f, 0.01f, 10000.f);
+        glm::mat4 proj = glm::infinitePerspective(45.f, 1280.f/720.f, 0.01f);
         terrainShader->setMat4("proj", proj);
         terrainShader->setMat4("view", view);
 

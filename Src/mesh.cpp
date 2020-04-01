@@ -4,6 +4,7 @@
 
 void Mesh::createOnGPU()
 {
+    if(createdOnGPU) return;
 
     glGenVertexArrays(1, &this->vertexArray);
     glBindVertexArray(this->vertexArray);
@@ -45,4 +46,6 @@ void Mesh::createOnGPU()
     glEnableVertexAttribArray(3);
 
     glBindVertexArray(0);
+
+    createdOnGPU = true;
 }
