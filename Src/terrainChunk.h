@@ -49,9 +49,9 @@ private:
         float sample3 = ((noise.GetValue(x * 4, z * 4) + 1.f) / 2.f);
         
 
-        result.y = sample0 * 0.6f  + 
-                   sample1 * 0.2f  + 
-                   sample2 * 0.15f + 
+        result.y = sample0 * 0.8f  + 
+                   sample1 * 0.1f  + 
+                   sample2 * 0.05f + 
                    sample3 * 0.05f;
 
         result.y *= NOISE_HEIGHT_SCALE;

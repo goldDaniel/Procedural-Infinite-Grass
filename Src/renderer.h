@@ -66,7 +66,7 @@ namespace Renderer
         skyboxRenderer = new SkyboxRenderer();
 
         
-        chunks = generateChunks(4);
+        chunks = generateChunks(8);
     }
 
     void Draw(glm:: mat4 view)
@@ -85,6 +85,8 @@ namespace Renderer
         
         Frustum frustum(view, proj);
 
+        std::vector<TerrainChunk*> chunksToRender;
+
         shapeRenderer->setProjectionMatrix(proj);
 
         shapeRenderer->begin(view);
@@ -94,11 +96,7 @@ namespace Renderer
 
             if(frustum.testIntersection(box) != BoundingVolume::TEST_OUTSIDE)
             {
-                shapeRenderer->setColor(glm::vec3(1, 0, 0));
-            }
-            else
-            {
-                shapeRenderer->setColor(glm::vec3(1, 1, 1));
+                chunksToRender.push_back(chunk);
             }
 
             shapeRenderer->box(chunk->getWorldMin(), chunk->getWorldMax());
@@ -107,7 +105,7 @@ namespace Renderer
 
 
         skyboxRenderer->draw(view);
-        terrainRenderer->draw(view, chunks);
+        terrainRenderer->draw(view, chunksToRender);
         
     }    
 }

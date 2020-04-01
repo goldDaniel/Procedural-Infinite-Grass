@@ -9,6 +9,10 @@
 #include "fastnoise/FastNoise.h"
 #include "terrainChunk.h"
 
+TerrainChunk* generateChunk(FastNoise noise, int x, int z)
+{
+    return new TerrainChunk(noise, x, z);
+}
 
 std::vector<TerrainChunk*> generateChunks(int size)
 {
@@ -16,12 +20,19 @@ std::vector<TerrainChunk*> generateChunks(int size)
 
     FastNoise noise;
 
+    std::vector<std::future<TerrainChunk*>> futures;
+
     for(int x = -size; x < size; ++x)
     {
         for(int z = -size; z < size; ++z)
         {
-            result.push_back(new TerrainChunk(noise, x, z));
+            futures.push_back(std::async(generateChunk, noise, x, z));
         }
+    }
+
+    for(size_t i = 0; i < futures.size(); ++i)
+    {
+        result.push_back(futures[i].get());
     }
 
     for(TerrainChunk* chunk : result)
