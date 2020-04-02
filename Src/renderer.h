@@ -35,8 +35,8 @@ private:
     TerrainRenderer* terrainRenderer;
     SkyboxRenderer* skyboxRenderer;
 
-    std::vector<TerrainChunk*> chunks;
 
+    std::vector<TerrainChunk*> chunks;
     float elapsed = 0;
 
     SDL_Window* window;
@@ -59,9 +59,11 @@ public:
         shapeRenderer = new ShapeRenderer();
         terrainRenderer = new TerrainRenderer();
         skyboxRenderer = new SkyboxRenderer();
+    }
 
-        
-        chunks = generateChunks(4);
+    void setTerrain(std::vector<TerrainChunk*> chunks)
+    {
+        this->chunks = chunks;
     }
 
     ~Renderer()

@@ -4,11 +4,17 @@
 #include "camera.h"
 #include "Physics.h"
 #include "renderer.h"
+#include "terrainChunkGenerator.h"
+#include "terrainChunk.h"
+
 #include "glad/glad.h"
-#define GLM_FORCE_RADIANS 1
+
 
 #include <cassert>
+
+#define GLM_FORCE_RADIANS 1
 #include <glm/glm.hpp>
+
 #include <SDL2/SDL.h>
 
 class Game
@@ -20,11 +26,15 @@ public:
 
         initWindow();
 
+        
+
         cam = new Camera(glm::vec3(0, 128, 0));
 
         physics = new PhysicsSim();
 
+        chunks = generateChunks(6);
         renderer = new Renderer(window);
+        renderer->setTerrain(chunks);
     }
 
     void run()
@@ -132,6 +142,8 @@ public:
 private: 
 
     bool running;
+
+    std::vector<TerrainChunk*> chunks;
 
     Camera* cam;
 

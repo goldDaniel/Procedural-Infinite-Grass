@@ -17,7 +17,6 @@ std::vector<TerrainChunk*> generateChunks(int size)
     // Get starting timepoint 
     auto start = std::chrono::high_resolution_clock::now(); 
 
-
     std::vector<TerrainChunk*> result;
 
     FastNoise noise;
@@ -64,13 +63,9 @@ std::vector<TerrainChunk*> generateChunks(int size)
 #endif
 
     
-
     // Get ending timepoint 
     auto stop = std::chrono::high_resolution_clock::now(); 
   
-    // Get duration. Substart timepoints to  
-    // get durarion. To cast it to proper unit 
-    // use duration cast method 
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start); 
 
     std::cout << "GEN TIME: " << duration.count() << std::endl;
