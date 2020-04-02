@@ -6,11 +6,11 @@
 
 CXX      := -g++
 CXXFLAGS := -Wall  -MD -std=c++11
-LDFLAGS  := -lSDL2main -lSDL2 -lSDL2_image -ldl -lassimp -lpthread -lGL
+LDFLAGS  := -lSDL2main -lSDL2 -lSDL2_image -ldl -lassimp -lpthread -lGL -lBulletDynamics -lBulletCollision -lBulletSoftBody -lLinearMath
 BUILD    := ./Build
 OBJ_DIR  := $(BUILD)/objects
 TARGET   := run
-INCLUDE  := -ISrc/ 
+INCLUDE  := -ISrc/ -I /usr/local/include/bullet/
 SRC      :=                      \
    $(wildcard Src/*.cpp) \
    $(wildcard Src/**/*.cpp) \

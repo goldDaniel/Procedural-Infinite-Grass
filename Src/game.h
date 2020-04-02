@@ -2,6 +2,7 @@
 #define GAME_WORLD_H
 
 #include "camera.h"
+#include "Physics.h"
 #include "renderer.h"
 #include "glad/glad.h"
 #define GLM_FORCE_RADIANS 1
@@ -20,6 +21,9 @@ public:
         initWindow();
 
         cam = new Camera(glm::vec3(0, 128, 0));
+
+        physics = new PhysicsSim();
+
         renderer = new Renderer(window);
     }
 
@@ -130,6 +134,8 @@ private:
     bool running;
 
     Camera* cam;
+
+    PhysicsSim* physics;
 
     Renderer* renderer;
 

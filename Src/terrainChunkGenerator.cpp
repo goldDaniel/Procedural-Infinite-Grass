@@ -25,6 +25,7 @@ std::vector<TerrainChunk*> generateChunks(int size)
 
 #define MULTITHREAD_PATH
 #ifdef MULTITHREAD_PATH
+
     std::vector<std::future<TerrainChunk*>> futures;
 
     for(int x = -size; x < size; ++x)
@@ -44,7 +45,9 @@ std::vector<TerrainChunk*> generateChunks(int size)
     {
         chunk->createOnGPU();
     }
+
 #else
+
     for(int x = -size; x < size; ++x)
     {
         for(int z = -size; z < size; ++z)
