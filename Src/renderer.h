@@ -2,6 +2,8 @@
 #define TERRAIN_GRASS_RENDERER_H
 
 #include <glm/gtc/random.hpp>
+#include <SDL2/SDL.h>
+#include <vector>
 
 #include "glad/glad.h"
 
@@ -20,35 +22,28 @@
 
 
 
-#include <vector>
+struct Plane
+{
+    glm::vec3 normal;
+    float d;
+};
 
-namespace Renderer
-{   
-
-    struct Plane
-    {
-        glm::vec3 normal;
-        float d;
-    };
-
+class Renderer
+{
+private:
     ShapeRenderer* shapeRenderer;
     TerrainRenderer* terrainRenderer;
     SkyboxRenderer* skyboxRenderer;
 
     std::vector<TerrainChunk*> chunks;
 
-    const int terrainSize = 64;
-
     float elapsed = 0;
 
     SDL_Window* window;
 
-    void Dispose()
-    {
+public:
     
-    }
-
-    void Init(SDL_Window* w)
+    Renderer(SDL_Window* w)
     {
         window = w;
 
@@ -66,10 +61,15 @@ namespace Renderer
         skyboxRenderer = new SkyboxRenderer();
 
         
-        chunks = generateChunks(6);
+        chunks = generateChunks(4);
     }
 
-    void Draw(glm:: mat4 view)
+    ~Renderer()
+    {
+
+    }
+
+    void draw(glm:: mat4 view)
     {
         int w,h;
         SDL_GetWindowSize(window, &w, &h);
@@ -94,7 +94,7 @@ namespace Renderer
 
         skyboxRenderer->draw(view);
         terrainRenderer->draw(view, proj, chunks);
-        
     }    
-}
+};
+
 #endif

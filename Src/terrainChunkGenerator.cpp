@@ -1,7 +1,11 @@
 #include "terrainChunkGenerator.h"
 
+#include <iostream>
 #include <vector>
 #include <future>
+
+#include <chrono>
+
 
 static TerrainChunk* generateChunk(FastNoise noise, int x, int z)
 {
@@ -10,10 +14,17 @@ static TerrainChunk* generateChunk(FastNoise noise, int x, int z)
 
 std::vector<TerrainChunk*> generateChunks(int size)
 {
+    // Get starting timepoint 
+    auto start = std::chrono::high_resolution_clock::now(); 
+
+
     std::vector<TerrainChunk*> result;
 
     FastNoise noise;
 
+
+#define MULTITHREAD_PATH
+#ifdef MULTITHREAD_PATH
     std::vector<std::future<TerrainChunk*>> futures;
 
     for(int x = -size; x < size; ++x)
@@ -33,6 +44,33 @@ std::vector<TerrainChunk*> generateChunks(int size)
     {
         chunk->createOnGPU();
     }
+#else
+    for(int x = -size; x < size; ++x)
+    {
+        for(int z = -size; z < size; ++z)
+        {
+            result.push_back(generateChunk( noise, x, z));
+        }
+    }
+
+    for(TerrainChunk* chunk : result)
+    {
+        chunk->createOnGPU();
+    }
+
+#endif
+
+    
+
+    // Get ending timepoint 
+    auto stop = std::chrono::high_resolution_clock::now(); 
+  
+    // Get duration. Substart timepoints to  
+    // get durarion. To cast it to proper unit 
+    // use duration cast method 
+    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start); 
+
+    std::cout << "GEN TIME: " << duration.count() << std::endl;
 
     return result;
 }

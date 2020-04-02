@@ -1,0 +1,5 @@
+DEBUG LINEAR               average over 10 tests(ms): 12628 
+DEBUG MULTITHREADED        average over 10 tests(ms):  5240
+
+OPTIMIZED LINEAR           average over 10 tests(ms):  2838  
+OPTIMIZED MUTLITHREADED    average over 10 tests(ms):  1611  
