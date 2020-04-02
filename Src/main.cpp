@@ -3,8 +3,6 @@
  
 #define GLM_FORCE_RADIANS 1
 #include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
 #include <SDL2/SDL.h>
  
 #include "camera.h"

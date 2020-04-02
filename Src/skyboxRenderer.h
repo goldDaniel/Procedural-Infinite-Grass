@@ -172,12 +172,14 @@ public:
         skyboxShader->setMat4("view", view);
         
         
-        
+        glEnable(GL_DEPTH_TEST);
         glDepthFunc(GL_LEQUAL);  
+        
         glBindVertexArray(VAO);
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapID);
         glDrawArrays(GL_TRIANGLES, 0, 36);
+        
         glBindVertexArray(0);
         glDepthFunc(GL_LESS); 
     }

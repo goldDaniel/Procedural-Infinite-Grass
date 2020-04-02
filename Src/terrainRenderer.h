@@ -9,6 +9,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtx/transform.hpp>
 
+#include "boundingVolume.h"
 #include "shader.h"
 #include "terrainChunk.h"
 
@@ -75,22 +76,28 @@ public:
         delete terrainShader;
     }
 
-    void draw(glm::mat4 view, std::vector<TerrainChunk*>& chunks)
+    void draw(glm::mat4 view, glm::mat4 proj, std::vector<TerrainChunk*>& chunks)
     {
         glEnable(GL_DEPTH_TEST);
 
+
+        Frustum frustum(view, proj);
+
         terrainShader->use();
-        glm::mat4 proj = glm::infinitePerspective(45.f, 1280.f/720.f, 0.01f);
         terrainShader->setMat4("proj", proj);
         terrainShader->setMat4("view", view);
 
         for(TerrainChunk* chunk : chunks)
         {
-            glBindVertexArray(chunk->getVertexArray());
-            glDrawArrays(GL_TRIANGLES, 0, chunk->getNumVertices());    
-        }
-        
+            BoundingBox box(chunk->getWorldMin(), chunk->getWorldMax());
 
+            if(frustum.testIntersection(box) != BoundingVolume::TEST_OUTSIDE)
+            {
+                glBindVertexArray(chunk->getVertexArray());
+                glDrawArrays(GL_TRIANGLES, 0, chunk->getNumVertices());    
+            }
+            
+        }
         glBindVertexArray(0);
     }
 };

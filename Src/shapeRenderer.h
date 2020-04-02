@@ -83,7 +83,7 @@ private:
         glDrawArrays(GL_LINES, 0, currentIndex / VALUES_PER_VERTEX);
 
         
-
+        memset(buffer, 0, MAX_VERTICES * VALUES_PER_VERTEX);
         currentIndex = 0;
     }
 

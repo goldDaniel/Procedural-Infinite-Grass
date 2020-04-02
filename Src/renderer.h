@@ -18,7 +18,7 @@
 
 #include "model.h"
 
-#include "boundingVolume.h"
+
 
 #include <vector>
 
@@ -66,7 +66,7 @@ namespace Renderer
         skyboxRenderer = new SkyboxRenderer();
 
         
-        chunks = generateChunks(8);
+        chunks = generateChunks(6);
     }
 
     void Draw(glm:: mat4 view)
@@ -80,32 +80,20 @@ namespace Renderer
 
         elapsed += 0.01f;
 
-        glm::mat4 proj = glm::infinitePerspective(45.f, 1280.f/720.f, 0.01f);
-
-        
-        Frustum frustum(view, proj);
-
-        std::vector<TerrainChunk*> chunksToRender;
+        glm::mat4 proj = glm::perspective(45.f, 1280.f/720.f, 1.f, 1024.f);
 
         shapeRenderer->setProjectionMatrix(proj);
 
         shapeRenderer->begin(view);
         for(TerrainChunk* chunk : chunks)
         {
-            BoundingBox box(chunk->getWorldMin(), chunk->getWorldMax());
-
-            if(frustum.testIntersection(box) != BoundingVolume::TEST_OUTSIDE)
-            {
-                chunksToRender.push_back(chunk);
-            }
-
             shapeRenderer->box(chunk->getWorldMin(), chunk->getWorldMax());
         }
         shapeRenderer->end();
 
 
         skyboxRenderer->draw(view);
-        terrainRenderer->draw(view, chunksToRender);
+        terrainRenderer->draw(view, proj, chunks);
         
     }    
 }
