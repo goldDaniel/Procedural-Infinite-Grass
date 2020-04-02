@@ -26,8 +26,6 @@ public:
 
         initWindow();
 
-        
-
         cam = new Camera(glm::vec3(0, 128, 0));
 
         physics = new PhysicsSim();
@@ -35,6 +33,20 @@ public:
         chunks = generateChunks(6);
         renderer = new Renderer(window);
         renderer->setTerrain(chunks);
+    }
+
+    ~Game()
+    {
+        delete renderer;
+        
+        for(TerrainChunk* chunk : chunks)
+        {
+            delete chunk;
+        }
+        chunks.clear();
+
+        delete physics;
+        delete cam;
     }
 
     void run()
