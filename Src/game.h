@@ -30,7 +30,7 @@ public:
 
         physics = new PhysicsSim();
 
-        chunks = generateChunks(6);
+        chunks = generateChunks(12);
         renderer = new Renderer(window);
         renderer->setTerrain(chunks);
     }
@@ -145,6 +145,7 @@ public:
             
 
             renderer->draw(cam->getViewMatrix());
+
 
             SDL_GL_SwapWindow(window);
         }

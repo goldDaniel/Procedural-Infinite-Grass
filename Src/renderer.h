@@ -20,6 +20,7 @@
 
 #include "model.h"
 
+#include "player.h"
 
 
 struct Plane
@@ -41,6 +42,8 @@ private:
 
     SDL_Window* window;
 
+    Player* player;
+
 public:
     
     Renderer(SDL_Window* w)
@@ -59,6 +62,8 @@ public:
         shapeRenderer = new ShapeRenderer();
         terrainRenderer = new TerrainRenderer();
         skyboxRenderer = new SkyboxRenderer();
+
+        player = new Player();
     }
 
     void setTerrain(std::vector<TerrainChunk*> chunks)
@@ -82,9 +87,11 @@ public:
 
         elapsed += 0.01f;
 
-        glm::mat4 proj = glm::perspective(45.f, 1280.f/720.f, 1.f, 1024.f);
+        glm::mat4 proj = glm::perspective(45.f, 1280.f/720.f, 1.f, 2048.f);
 
         shapeRenderer->setProjectionMatrix(proj);
+
+        
 
         shapeRenderer->begin(view);
         for(TerrainChunk* chunk : chunks)
@@ -93,6 +100,8 @@ public:
         }
         shapeRenderer->end();
 
+        player->update(0.01f);
+        player->draw(view, proj);
 
         skyboxRenderer->draw(view);
         terrainRenderer->draw(view, proj, chunks);

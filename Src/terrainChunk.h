@@ -29,9 +29,11 @@ private:
 
     bool createdOnGPU = false;
     
+    //we want to keep this data on the CPU for bullet physics mesh
     float* positions = nullptr;
     float* normals = nullptr;
     float* colors = nullptr;
+    /////////////////////////////////////////////////////////////
 
     float lerp(float a, float b, float t);
 
@@ -54,6 +56,11 @@ public:
     ~TerrainChunk();
 
     void createOnGPU();
+
+    float* getPositionBuffer()
+    {
+        return positions;
+    }
 
     int getChunkX()
     {

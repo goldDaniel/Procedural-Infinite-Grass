@@ -3,6 +3,8 @@
 
 #include <bullet/btBulletDynamicsCommon.h>
 
+#include "terrainChunk.h"
+
 class PhysicsSim
 {
 public:
@@ -18,7 +20,7 @@ public:
                                                    solver, 
                                                    collisionConfig);
 
-        dynamicWorld->setGravity(btVector3(0, -10, 0));
+        dynamicWorld->setGravity(btVector3(0, 0, 0));
     }
 
     ~PhysicsSim()
@@ -29,7 +31,12 @@ public:
         delete collisionDispatcher;
         delete collisionConfig;
     }
+    
 
+    void createTerrainCollisionShapes(std::vector<TerrainChunk*> chunks)
+    {
+        
+    }
 
 private:
     

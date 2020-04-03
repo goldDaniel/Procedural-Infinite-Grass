@@ -6,7 +6,7 @@
 
 #include "fastnoise/FastNoise.h"
 
-int TerrainChunk::TERRAIN_SIZE = 256;
+int TerrainChunk::TERRAIN_SIZE = 128;
 int TerrainChunk::NOISE_HEIGHT_SCALE = 256;
 
 int TerrainChunk::VALUES_PER_VERTEX = 18;
@@ -30,10 +30,9 @@ glm::vec3 TerrainChunk::generateVertexPosition(FastNoise& noise, int x, int z)
     float sample3 = ((noise.GetValue(x * 4, z * 4) + 1.f) / 2.f);
     
 
-    result.y = sample0 * 0.94f  + 
-                sample1 * 0.05f  + 
-                sample2 * 0.009f + 
-                sample3 * 0.001f;
+    result.y = sample0 *  0.9f  + 
+                sample1 * 0.075f  + 
+                glm::pow(sample2 + sample3, 0.8f) * 0.025f;
 
     result.y *= NOISE_HEIGHT_SCALE;
 
@@ -146,6 +145,10 @@ TerrainChunk::~TerrainChunk()
 {
     glDeleteBuffers(1, &positionBuffer);
     glDeleteVertexArrays(1, &VAO);
+
+    delete positions;
+    delete normals;
+    delete colors;
 }
 
 
@@ -181,7 +184,5 @@ void TerrainChunk::createOnGPU()
 
     createdOnGPU = true;
 
-    delete positions;
-    delete normals;
-    delete colors;
+    
 }

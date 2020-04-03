@@ -125,6 +125,8 @@ public:
 
     void setProjectionMatrix(glm::mat4 proj)
     {
+        assert(!running);
+        
         this->projection = proj;
     }
 
