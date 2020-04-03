@@ -87,7 +87,7 @@ public:
 
         elapsed += 0.01f;
 
-        glm::mat4 proj = glm::perspective(45.f, 1280.f/720.f, 1.f, 2048.f);
+        glm::mat4 proj = glm::perspective(45.f, 1280.f/720.f, 1.f, 1024.f);
 
         shapeRenderer->setProjectionMatrix(proj);
 

@@ -55,7 +55,7 @@ private:
 
     "void main()\n"
     "{\n"           
-        "vec3 lightDir = vec3(1, 0.5, -1);\n"
+        "vec3 lightDir = vec3(0, -0.5, 1);\n"
         "lightDir = normalize(lightDir);\n"
         "float d = max(dot(normalize(nor), lightDir), 0.0);\n"
         "FragColor = vec4(0.75*d*color, 1.f);\n"
@@ -94,7 +94,7 @@ public:
             if(frustum.testIntersection(box) != BoundingVolume::TEST_OUTSIDE)
             {
                 glBindVertexArray(chunk->getVertexArray());
-                glDrawArrays(GL_TRIANGLES, 0, chunk->getNumVertices());    
+                glDrawElements(GL_TRIANGLES, chunk->getNumIndices(), GL_UNSIGNED_INT, 0);
             }
             
         }

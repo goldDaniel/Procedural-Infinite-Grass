@@ -19,7 +19,11 @@ private:
     GLuint normalBuffer;
     GLuint colorBuffer;
 
+    GLuint indexBuffer;
+
     GLuint numVertices;
+
+    GLuint numIndices;
 
     int chunkPosX;
     int chunkPosZ;
@@ -33,6 +37,8 @@ private:
     float* positions = nullptr;
     float* normals = nullptr;
     float* colors = nullptr;
+
+    int* indices = nullptr;
     /////////////////////////////////////////////////////////////
 
     float lerp(float a, float b, float t);
@@ -43,7 +49,7 @@ private:
 
     void pushToBuffer(float* buffer, int& index, glm::vec3 values);
 
-    void generateChunkTerrain(FastNoise& noise, float* vertices, float* normals, float* colors);
+    void generateChunkTerrain(FastNoise& noise);
 
     
 
@@ -92,6 +98,10 @@ public:
         return numVertices;
     }
 
+    GLuint getNumIndices()
+    {
+        return numIndices;
+    }
     
 };
 

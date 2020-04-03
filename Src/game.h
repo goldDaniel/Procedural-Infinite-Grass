@@ -30,7 +30,7 @@ public:
 
         physics = new PhysicsSim();
 
-        chunks = generateChunks(12);
+        chunks = generateChunks(16);
         renderer = new Renderer(window);
         renderer->setTerrain(chunks);
     }
