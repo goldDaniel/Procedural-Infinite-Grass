@@ -142,9 +142,10 @@ public:
             {
                 cam->processKeyboard(Camera_Movement::BACKWARD, dt);
             }
-            
 
+            physics->step();
             renderer->draw(cam->getViewMatrix());
+            physics->renderDebug(cam->getViewMatrix(), glm::perspective(45.f, 1280.f/720.f, 1.f, 1024.f));
 
 
             SDL_GL_SwapWindow(window);

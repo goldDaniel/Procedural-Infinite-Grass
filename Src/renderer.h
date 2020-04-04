@@ -20,8 +20,6 @@
 
 #include "model.h"
 
-#include "player.h"
-
 
 struct Plane
 {
@@ -42,8 +40,6 @@ private:
 
     SDL_Window* window;
 
-    Player* player;
-
 public:
     
     Renderer(SDL_Window* w)
@@ -63,7 +59,6 @@ public:
         terrainRenderer = new TerrainRenderer();
         skyboxRenderer = new SkyboxRenderer();
 
-        player = new Player();
     }
 
     void setTerrain(std::vector<TerrainChunk*> chunks)
@@ -99,9 +94,6 @@ public:
             shapeRenderer->box(chunk->getWorldMin(), chunk->getWorldMax());
         }
         shapeRenderer->end();
-
-        player->update(0.01f);
-        player->draw(view, proj);
 
         skyboxRenderer->draw(view);
         terrainRenderer->draw(view, proj, chunks);
