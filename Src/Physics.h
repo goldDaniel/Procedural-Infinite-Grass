@@ -47,7 +47,7 @@ public:
 		btTransform startTransform;
 		startTransform.setIdentity();
 
-		btScalar	mass(1.f);
+		btScalar	mass(5.f);
 
 		//rigidbody is dynamic if and only if mass is non zero, otherwise static
 		bool isDynamic = (mass != 0.f);
@@ -82,7 +82,42 @@ public:
 
     void createTerrainCollisionShapes(std::vector<TerrainChunk*> chunks)
     {
-        
+        for(TerrainChunk* chunk : chunks)
+        {
+            btTriangleIndexVertexArray* idxVertArr = 
+                    new btTriangleIndexVertexArray(chunk->getNumIndices() / 3,
+                                                   chunk->getIndexBuffer(),
+                                                   sizeof(int) * 3,
+                                                   chunk->getNumVertices(),
+                                                   (btScalar*)&chunk->getPositionBuffer()[0],
+                                                   sizeof(glm::vec3));
+            btVector3 min(chunk->getWorldMin().x,
+                          chunk->getWorldMin().y,
+                          chunk->getWorldMin().z);
+            btVector3 max(chunk->getWorldMax().x,
+                          chunk->getWorldMax().y,
+                          chunk->getWorldMax().z);
+
+            btCollisionShape* trimeshShape  = 
+                    new btBvhTriangleMeshShape(idxVertArr,true,min,max);
+	        
+            collisionShapes.push_back(trimeshShape);
+
+
+           
+
+            btTransform startTransform;
+            startTransform.setIdentity();
+
+             //using motionstate is recommended, it provides interpolation capabilities, and only synchronizes 'active' objects
+            btDefaultMotionState* myMotionState = new btDefaultMotionState(startTransform);
+            btRigidBody::btRigidBodyConstructionInfo rbInfo(0.f,myMotionState,trimeshShape,btVector3(0,0,0));
+            btRigidBody* body = new btRigidBody(rbInfo);
+
+            body->setCollisionFlags(body->getCollisionFlags() | btCollisionObject::CF_KINEMATIC_OBJECT);
+
+            dynamicWorld->addRigidBody(body);
+        }
     }
 
     void step()

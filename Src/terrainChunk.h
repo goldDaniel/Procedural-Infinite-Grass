@@ -93,6 +93,11 @@ public:
         return VAO;
     }
 
+    int* getIndexBuffer()
+    {
+        return indices;
+    }
+
     GLuint getNumVertices()
     {
         return numVertices;

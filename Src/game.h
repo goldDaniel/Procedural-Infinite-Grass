@@ -27,10 +27,12 @@ public:
         initWindow();
 
         cam = new Camera(glm::vec3(0, 128, 0));
-
+        
+        chunks = generateChunks(4);
+        
         physics = new PhysicsSim();
-
-        chunks = generateChunks(12);
+        physics->createTerrainCollisionShapes(chunks);
+        
         renderer = new Renderer(window);
         renderer->setTerrain(chunks);
     }
