@@ -8,7 +8,7 @@
 
 //#define ORIGINAL_TERRAIN_GENERATION
 
-int TerrainChunk::TERRAIN_SIZE = 64;
+int TerrainChunk::TERRAIN_SIZE = 256;
 int TerrainChunk::NOISE_HEIGHT_SCALE = 256;
 
 
@@ -26,13 +26,10 @@ glm::vec3 TerrainChunk::generateVertexPosition(FastNoise& noise, int x, int z)
 
     float sample0 = ((noise.GetValue(x * 0.25f, z * 0.25f) + 1.f) / 2.f);
     float sample1 = ((noise.GetValue(x, z) + 1.f) / 2.f);
-    float sample2 = ((noise.GetValue(x * 3, z * 3) + 1.f) / 2.f);
-    float sample3 = ((noise.GetValue(x * 4, z * 4) + 1.f) / 2.f);
     
 
-    result.y = sample0 *  0.9f  + 
-                sample1 * 0.075f  + 
-                glm::pow(sample2 + sample3, 0.8f) * 0.025f;
+    result.y = sample0 *  0.8f  + 
+               sample1 * 0.2f;
 
     result.y *= NOISE_HEIGHT_SCALE;
 
@@ -61,64 +58,6 @@ void TerrainChunk::generateChunkTerrain(FastNoise& noise)
     int vertexIndex = 0;
     int normalIndex = 0;
     int colorIndex = 0;
-
-#ifdef ORIGINAL_TERRAIN_GENERATION
-    for(int i = 0; i < TERRAIN_SIZE; ++i)
-    {
-        for(int j = 0; j < TERRAIN_SIZE; ++j)
-        {
-            float x = i + (chunkPosX * TERRAIN_SIZE);
-            float z = j + (chunkPosZ * TERRAIN_SIZE);
-
-            
-            glm::vec3 posA = generateVertexPosition(noise, x, z);
-            glm::vec3 posB = generateVertexPosition(noise, x + 1, z + 1);
-            glm::vec3 posC = generateVertexPosition(noise, x + 1, z);
-
-            glm::vec3 colA = generateVertexColor(posA);
-            glm::vec3 colB = generateVertexColor(posB);
-            glm::vec3 colC = generateVertexColor(posC);
-            //we use flat shading, so 1 normal value per triangle primitive
-            glm::vec3 normal = generateVertexNormal(posA, posB, posC);
-
-            pushToBuffer(vertices, vertexIndex, posA);
-            pushToBuffer(normals, normalIndex, normal);
-            pushToBuffer(colors, colorIndex, colA);
-
-            pushToBuffer(vertices, vertexIndex, posB);
-            pushToBuffer(normals, normalIndex, normal);
-            pushToBuffer(colors, colorIndex, colB);
-
-            pushToBuffer(vertices, vertexIndex, posC);
-            pushToBuffer(normals, normalIndex, normal);
-            pushToBuffer(colors, colorIndex, colC);
-
-
-            posA = generateVertexPosition(noise, x, z);
-            posB = generateVertexPosition(noise, x, z + 1);
-            posC = generateVertexPosition(noise, x + 1, z + 1);
-
-            colA = generateVertexColor(posA);
-            colB = generateVertexColor(posB);
-            colC = generateVertexColor(posC);
-            //we use flat shading, so 1 normal value per triangle primitive
-            normal = generateVertexNormal(posA, posB, posC);
-
-            pushToBuffer(vertices, vertexIndex, posA);
-            pushToBuffer(normals, normalIndex, normal);
-            pushToBuffer(colors, colorIndex, colA);
-
-            pushToBuffer(vertices, vertexIndex, posB);
-            pushToBuffer(normals, normalIndex, normal);
-            pushToBuffer(colors, colorIndex, colB);
-
-            pushToBuffer(vertices, vertexIndex, posC);
-            pushToBuffer(normals, normalIndex, normal);
-            pushToBuffer(colors, colorIndex, colC);     
-        }
-    }
-#else
-    
     for(int i = -1; i < TERRAIN_SIZE + 1; ++i)
     {
         for(int j = -1; j < TERRAIN_SIZE + 1; ++j)
@@ -153,7 +92,6 @@ void TerrainChunk::generateChunkTerrain(FastNoise& noise)
 			indices[indicesIndex++] = (i + 1) * (TERRAIN_SIZE + 2) + j;
         }
     }
-#endif
 }
 
 TerrainChunk::TerrainChunk(FastNoise& noise, int chunkPosX, int chunkPosZ)
@@ -227,6 +165,7 @@ void TerrainChunk::createOnGPU()
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, numIndices * sizeof(GLuint), &indices[0], GL_STATIC_DRAW);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0); 
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0); 
 
     glBindVertexArray(0);
 

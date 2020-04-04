@@ -58,7 +58,7 @@ private:
         "vec3 lightDir = vec3(0, -0.5, 1);\n"
         "lightDir = normalize(lightDir);\n"
         "float d = max(dot(normalize(nor), lightDir), 0.0);\n"
-        "FragColor = vec4(0.75*d*color, 1.f);\n"
+        "FragColor = vec4(0.6*d*color + 0.1*color, 1.f);\n"
     "}\n";
 
     Shader* terrainShader;
