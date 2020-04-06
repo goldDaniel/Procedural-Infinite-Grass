@@ -85,7 +85,7 @@ public:
     {        
         elapsed += 0.01f;
 
-        glm::mat4 proj = glm::perspective(45.f, 1280.f/720.f, 1.f, 1024.f);
+        glm::mat4 proj = glm::perspective(45.f, 1280.f/720.f, 2.f, 2048.f);
 
         
         for(size_t i = 0; i < modelsToDraw.size(); ++i)

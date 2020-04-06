@@ -22,8 +22,8 @@ std::vector<TerrainChunk*> generateChunks(int size)
     FastNoise noise;
     noise.SetSeed(start.time_since_epoch().count());
 
-#define MULTITHREAD_PATH
-#ifdef MULTITHREAD_PATH
+#define GENERATION_MULTITHREAD_PATH
+#ifdef GENERATION_MULTITHREAD_PATH
 
     std::vector<std::future<TerrainChunk*>> futures;
 
@@ -63,12 +63,7 @@ std::vector<TerrainChunk*> generateChunks(int size)
 #endif
 
     
-    // Get ending timepoint 
-    auto stop = std::chrono::high_resolution_clock::now(); 
-  
-    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start); 
-
-    std::cout << "GEN TIME: " << duration.count() << std::endl;
+    
 
     return result;
 }

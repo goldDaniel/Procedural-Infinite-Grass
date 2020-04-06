@@ -1,76 +1,51 @@
 #ifndef GAME_PHYSICS_H
 #define GAME_PHYSICS_H
 
+#include <chrono>
+#include <iostream>
+
 #include <bullet/btBulletDynamicsCommon.h>
 #include <glm/gtc/quaternion.hpp>
+#include <thread>
+#include <future>
 
 #include "terrainChunk.h"
 
 #include "player.h"
 #include "shapeRenderer.h"
 
-class GLBulletDebugRenderer : public btIDebugDraw
+static btRigidBody* generateTriMesh(TerrainChunk* chunk)
 {
-private:
-    int debugMode;
+    btTriangleIndexVertexArray* idxVertArr = 
+        new btTriangleIndexVertexArray(chunk->getNumIndices() / 3,
+                                            chunk->getIndexBuffer(),
+                                            sizeof(int) * 3,
+                                            chunk->getNumVertices(),
+                                            (btScalar*)&chunk->getPositionBuffer()[0],
+                                            sizeof(glm::vec3));
+    btVector3 min(chunk->getWorldMin().x,
+                    chunk->getWorldMin().y,
+                    chunk->getWorldMin().z);
+    btVector3 max(chunk->getWorldMax().x,
+                    chunk->getWorldMax().y,
+                    chunk->getWorldMax().z);
 
-    ShapeRenderer* sh;
+    btCollisionShape* trimeshShape  = 
+            new btBvhTriangleMeshShape(idxVertArr,true,min,max);
+    
 
-public:
-    GLBulletDebugRenderer(int maxVertsPerDrawCall)
-    {
-        sh = new ShapeRenderer(maxVertsPerDrawCall);
-    }
+    btTransform startTransform;
+    startTransform.setIdentity();
 
-    virtual ~GLBulletDebugRenderer()
-    {
-        delete sh;
-    }
+        //using motionstate is recommended, it provides interpolation capabilities, and only synchronizes 'active' objects
+    btDefaultMotionState* myMotionState = new btDefaultMotionState(startTransform);
+    btRigidBody::btRigidBodyConstructionInfo rbInfo(0.f,myMotionState,trimeshShape,btVector3(0,0,0));
+    btRigidBody* body = new btRigidBody(rbInfo);
 
-    void begin(glm::mat4 view, glm::mat4 proj)
-    {
-        sh->setColor(glm::vec3(1.f, 1.f, 1.f));
-        sh->setProjectionMatrix(proj);
-        sh->begin(view);
-    }
+    body->setCollisionFlags(body->getCollisionFlags() | btCollisionObject::CF_KINEMATIC_OBJECT);
 
-    void end()
-    {
-        sh->end();
-    }
-
-    virtual void drawLine(const btVector3& from,const btVector3& to,const btVector3& color)
-    {
-        sh->line(from.getX(), from.getY(), from.getZ(),
-                 to.getX(),   to.getY(),   to.getZ());
-    }
-
-
-    virtual void drawContactPoint(const btVector3& PointOnB,const btVector3& normalOnB,btScalar distance,int lifeTime,const btVector3& color)
-    {
-
-    }
-
-    virtual void reportErrorWarning(const char* warningString)
-    {
-
-    }
-
-    virtual void draw3dText(const btVector3& location,const char* textString)
-    {
-
-    }
-
-    virtual void setDebugMode(int debugMode)
-    {
-        //this->debugMode = debugMode;
-    }
-
-    virtual int  getDebugMode() const 
-    { 
-        return btIDebugDraw::DBG_DrawWireframe;
-    }
-};
+    return body;
+}
 
 class PhysicsSim
 {
@@ -85,7 +60,6 @@ private:
     
     btAlignedObjectArray<btCollisionShape*> collisionShapes;
 
-    GLBulletDebugRenderer* debugRenderer;
     
 
 public:
@@ -101,15 +75,7 @@ public:
                                                    solver, 
                                                    collisionConfig);
 
-        dynamicWorld->setGravity(btVector3(0, -32, 0));
-
-
-
-        debugRenderer = new GLBulletDebugRenderer(8192*4);
-
-        debugRenderer->setDebugMode( debugRenderer->getDebugMode()| btIDebugDraw::DBG_DrawWireframe );
-
-        dynamicWorld->setDebugDrawer(debugRenderer);
+        dynamicWorld->setGravity(btVector3(0, -64, 0));
     }
 
     ~PhysicsSim()
@@ -132,7 +98,7 @@ public:
 		btTransform startTransform;
 		startTransform.setIdentity();
 
-		btScalar mass(32.f);
+		btScalar mass(64.f);
 
 		//rigidbody is dynamic if and only if mass is non zero, otherwise static
 		bool isDynamic = (mass != 0.f);
@@ -155,6 +121,24 @@ public:
 
     void createTerrainCollisionShapes(std::vector<TerrainChunk*> chunks)
     {
+
+
+#define PHYSICS_MULTITHREAD_PATH
+
+    std::vector<std::future<btRigidBody*>> futures;
+    for(TerrainChunk* chunk : chunks)
+    {
+        futures.push_back(std::async(generateTriMesh, chunk));
+    }
+
+    for(size_t i = 0; i < futures.size(); ++i)
+    {
+        dynamicWorld->addRigidBody(futures[i].get());
+    }   
+
+#ifdef PHYSICS_MULTITHREAD_PATH
+#else
+ 
         for(TerrainChunk* chunk : chunks)
         {
             btTriangleIndexVertexArray* idxVertArr = 
@@ -176,9 +160,6 @@ public:
 	        
             collisionShapes.push_back(trimeshShape);
 
-
-           
-
             btTransform startTransform;
             startTransform.setIdentity();
 
@@ -191,6 +172,7 @@ public:
 
             dynamicWorld->addRigidBody(body);
         }
+#endif
     }
 
     void step()
@@ -208,14 +190,6 @@ public:
 		// 		printf("world pos = %f,%f,%f\n",float(trans.getOrigin().getX()),float(trans.getOrigin().getY()),float(trans.getOrigin().getZ()));
 		// 	}
 		// }
-    }
-
-    //immediate mode style API, this is VERY VERY SLOW
-    void renderDebug(glm::mat4 view, glm::mat4 proj)
-    {
-        debugRenderer->begin(view, proj);
-        dynamicWorld->debugDrawWorld();
-        debugRenderer->end();
     }
 };
 
