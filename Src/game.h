@@ -136,20 +136,38 @@ public:
             }
 
             
-
+            float forceScale = 2048.f;
             if(up)
             {
                 glm::vec3 forceDir = player->getPosition() - cam->getPosition();
                 forceDir.y = 0;
                 forceDir = glm::normalize(forceDir);
-                player->applyForce(forceDir*1024.f);
+                player->applyForce(forceDir*forceScale);
             }
             if(down)
             {
                 glm::vec3 forceDir = player->getPosition() - cam->getPosition();
                 forceDir.y = 0;
                 forceDir = -glm::normalize(forceDir);
-                player->applyForce(forceDir*1024.f);
+                player->applyForce(forceDir*forceScale);
+            }
+            if(left)
+            {
+                glm::mat4 rotation = glm::rotate(glm::mat4(1.f), glm::pi<float>() / 2.f, glm::vec3(0, 1, 0));
+                glm::vec3 forceDir = player->getPosition() - cam->getPosition();
+                forceDir.y = 0;
+                forceDir = glm::normalize(forceDir);
+                forceDir = rotation * glm::vec4(forceDir, 1.f);
+                player->applyForce(forceDir*forceScale);
+            }
+            if(right)
+            {
+                glm::mat4 rotation = glm::rotate(glm::mat4(1.f), -glm::pi<float>() / 2.f, glm::vec3(0, 1, 0));
+                glm::vec3 forceDir = player->getPosition() - cam->getPosition();
+                forceDir.y = 0;
+                forceDir = glm::normalize(forceDir);
+                forceDir = rotation * glm::vec4(forceDir, 1.f);
+                player->applyForce(forceDir*forceScale);
             }
 
             physics->step();
