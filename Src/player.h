@@ -27,6 +27,12 @@ public:
         delete model;
     }
 
+    void applyForce(glm::vec3 force)
+    {
+        body->activate();
+        body->applyCentralForce(btVector3(force.x, force.y, force.z));
+    }
+
     Model* getModel()
     {
         return model;   

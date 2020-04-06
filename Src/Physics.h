@@ -125,14 +125,14 @@ public:
     {
         
         // btCollisionShape* colShape = new btBoxShape(btVector3(32.f,32.f,32.f));
-		btCollisionShape* colShape = new btSphereShape(btScalar(32.f));
+		btCollisionShape* colShape = new btSphereShape(btScalar(8.f));
 		collisionShapes.push_back(colShape);
 
 		/// Create Dynamic Objects
 		btTransform startTransform;
 		startTransform.setIdentity();
 
-		btScalar mass(16.f);
+		btScalar mass(32.f);
 
 		//rigidbody is dynamic if and only if mass is non zero, otherwise static
 		bool isDynamic = (mass != 0.f);

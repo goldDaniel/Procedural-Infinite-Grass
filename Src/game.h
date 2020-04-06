@@ -27,9 +27,9 @@ public:
 
         initWindow();
 
-        cam = new Camera(glm::vec3(0, 128, 0));
+        cam = new Camera();
         
-        chunks = generateChunks(4);
+        chunks = generateChunks(8);
         
         physics = new PhysicsSim();
         physics->createTerrainCollisionShapes(chunks);
@@ -135,25 +135,26 @@ public:
                 }
             }
 
-            if(left)
-            {	
-                cam->processKeyboard(Camera_Movement::LEFT, dt);
-            }	
-            if(right)
-            {
-                cam->processKeyboard(Camera_Movement::RIGHT, dt);
-            }
+            
+
             if(up)
             {
-                cam->processKeyboard(Camera_Movement::FORWARD, dt);
-            }	
+                glm::vec3 forceDir = player->getPosition() - cam->getPosition();
+                forceDir.y = 0;
+                forceDir = glm::normalize(forceDir);
+                player->applyForce(forceDir*1024.f);
+            }
             if(down)
             {
-                cam->processKeyboard(Camera_Movement::BACKWARD, dt);
+                glm::vec3 forceDir = player->getPosition() - cam->getPosition();
+                forceDir.y = 0;
+                forceDir = -glm::normalize(forceDir);
+                player->applyForce(forceDir*1024.f);
             }
 
             physics->step();
-
+            cam->followTarget(player->getPosition());
+            
 
             int w,h;
             SDL_GetWindowSize(window, &w, &h);
