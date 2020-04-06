@@ -2,26 +2,34 @@
 
 #include "error.h"
 
-
+#include "shader.h"
 
 #include <iostream>
 #include <tuple>
 
 #include <string>
 
+static Shader* shader = nullptr;
 static const std::string  DEFAULT_DIFFUSE_PATH = "Assets/default_diffuse.png";
 static const std::string  DEFAULT_NORMAL_PATH  = "Assets/default_normal.png";
 
 
 std::vector<Model*> Model::loadedModels;
 
-Model::Model(const std::string path) : transform(mat4(1.f))
+Model::Model(const std::string path) 
 {
+    //init shader
+    if(!shader) shader = new Shader(Mesh::vertexShaderSource, Mesh::fragmentShaderSource);
+
     loadModel(path);
 
     loadedModels.push_back(this);
 }  
 
+Shader* Model::getShader()
+{
+    return shader;
+}
 
 
 std::vector<Mesh*> Model::getMeshes()

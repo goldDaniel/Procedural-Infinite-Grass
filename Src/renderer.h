@@ -20,6 +20,7 @@
 
 #include "model.h"
 
+#include <queue>
 
 struct Plane
 {
@@ -39,6 +40,9 @@ private:
     float elapsed = 0;
 
     SDL_Window* window;
+
+    std::vector<Model*> modelsToDraw;
+    std::vector<glm::mat4> modelMatrices;
 
 public:
     
@@ -61,6 +65,12 @@ public:
 
     }
 
+    void queueModel(Model* model, glm::mat4 transform)
+    {
+        modelsToDraw.push_back(model);
+        modelMatrices.push_back(transform);
+    }
+
     void setTerrain(std::vector<TerrainChunk*> chunks)
     {
         this->chunks = chunks;
@@ -72,31 +82,31 @@ public:
     }
 
     void draw(glm:: mat4 view)
-    {
-        int w,h;
-        SDL_GetWindowSize(window, &w, &h);
-        glViewport(0, 0, w, h);
-
-        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
+    {        
         elapsed += 0.01f;
 
         glm::mat4 proj = glm::perspective(45.f, 1280.f/720.f, 1.f, 1024.f);
 
-        shapeRenderer->setProjectionMatrix(proj);
-
+        
+        for(size_t i = 0; i < modelsToDraw.size(); ++i)
+        {
+            modelsToDraw[i]->Draw(view, proj, modelMatrices[i]);
+        }
+        modelsToDraw.clear();
+        modelMatrices.clear();
         
 
+        terrainRenderer->draw(view, proj, chunks);
+        skyboxRenderer->draw(view);
+       
+        shapeRenderer->setProjectionMatrix(proj);
         shapeRenderer->begin(view);
         for(TerrainChunk* chunk : chunks)
         {
             shapeRenderer->box(chunk->getWorldMin(), chunk->getWorldMax());
         }
         shapeRenderer->end();
-
-        skyboxRenderer->draw(view);
-        terrainRenderer->draw(view, proj, chunks);
+    
     }    
 };
 

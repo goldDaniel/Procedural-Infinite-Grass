@@ -2,10 +2,75 @@
 #define GAME_PHYSICS_H
 
 #include <bullet/btBulletDynamicsCommon.h>
+#include <glm/gtc/quaternion.hpp>
 
 #include "terrainChunk.h"
 
+#include "player.h"
 #include "shapeRenderer.h"
+
+class GLBulletDebugRenderer : public btIDebugDraw
+{
+private:
+    int debugMode;
+
+    ShapeRenderer* sh;
+
+public:
+    GLBulletDebugRenderer(int maxVertsPerDrawCall)
+    {
+        sh = new ShapeRenderer(maxVertsPerDrawCall);
+    }
+
+    virtual ~GLBulletDebugRenderer()
+    {
+        delete sh;
+    }
+
+    void begin(glm::mat4 view, glm::mat4 proj)
+    {
+        sh->setColor(glm::vec3(1.f, 1.f, 1.f));
+        sh->setProjectionMatrix(proj);
+        sh->begin(view);
+    }
+
+    void end()
+    {
+        sh->end();
+    }
+
+    virtual void drawLine(const btVector3& from,const btVector3& to,const btVector3& color)
+    {
+        sh->line(from.getX(), from.getY(), from.getZ(),
+                 to.getX(),   to.getY(),   to.getZ());
+    }
+
+
+    virtual void drawContactPoint(const btVector3& PointOnB,const btVector3& normalOnB,btScalar distance,int lifeTime,const btVector3& color)
+    {
+
+    }
+
+    virtual void reportErrorWarning(const char* warningString)
+    {
+
+    }
+
+    virtual void draw3dText(const btVector3& location,const char* textString)
+    {
+
+    }
+
+    virtual void setDebugMode(int debugMode)
+    {
+        //this->debugMode = debugMode;
+    }
+
+    virtual int  getDebugMode() const 
+    { 
+        return btIDebugDraw::DBG_DrawWireframe;
+    }
+};
 
 class PhysicsSim
 {
@@ -20,7 +85,8 @@ private:
     
     btAlignedObjectArray<btCollisionShape*> collisionShapes;
 
-    ShapeRenderer* sh;
+    GLBulletDebugRenderer* debugRenderer;
+    
 
 public:
     PhysicsSim()
@@ -35,19 +101,38 @@ public:
                                                    solver, 
                                                    collisionConfig);
 
-        dynamicWorld->setGravity(btVector3(0, -4, 0));
+        dynamicWorld->setGravity(btVector3(0, -32, 0));
 
 
 
-        //btCollisionShape* colShape = new btBoxShape(btVector3(1,1,1));
-		btCollisionShape* colShape = new btSphereShape(btScalar(8.f));
+        debugRenderer = new GLBulletDebugRenderer(8192*4);
+
+        debugRenderer->setDebugMode( debugRenderer->getDebugMode()| btIDebugDraw::DBG_DrawWireframe );
+
+        dynamicWorld->setDebugDrawer(debugRenderer);
+    }
+
+    ~PhysicsSim()
+    {
+        delete dynamicWorld;
+        delete solver;
+        delete overlappingCache;
+        delete collisionDispatcher;
+        delete collisionConfig;
+    }
+    
+    void createPlayerRigidBody(Player* player)
+    {
+        
+        // btCollisionShape* colShape = new btBoxShape(btVector3(32.f,32.f,32.f));
+		btCollisionShape* colShape = new btSphereShape(btScalar(32.f));
 		collisionShapes.push_back(colShape);
 
 		/// Create Dynamic Objects
 		btTransform startTransform;
 		startTransform.setIdentity();
 
-		btScalar	mass(5.f);
+		btScalar mass(16.f);
 
 		//rigidbody is dynamic if and only if mass is non zero, otherwise static
 		bool isDynamic = (mass != 0.f);
@@ -60,25 +145,13 @@ public:
 
         startTransform.setOrigin(btVector3(0,256,0));
     
-        //using motionstate is recommended, it provides interpolation capabilities, and only synchronizes 'active' objects
         btDefaultMotionState* myMotionState = new btDefaultMotionState(startTransform);
         btRigidBody::btRigidBodyConstructionInfo rbInfo(mass,myMotionState,colShape,localInertia);
         btRigidBody* body = new btRigidBody(rbInfo);
-
+        
+        player->setRigidBody(body);
         dynamicWorld->addRigidBody(body);
-
-        sh = new ShapeRenderer();
     }
-
-    ~PhysicsSim()
-    {
-        delete dynamicWorld;
-        delete solver;
-        delete overlappingCache;
-        delete collisionDispatcher;
-        delete collisionConfig;
-    }
-    
 
     void createTerrainCollisionShapes(std::vector<TerrainChunk*> chunks)
     {
@@ -137,33 +210,12 @@ public:
 		// }
     }
 
+    //immediate mode style API, this is VERY VERY SLOW
     void renderDebug(glm::mat4 view, glm::mat4 proj)
     {
-        sh->setColor(glm::vec3(1.f, 0.3f, 0.3f));
-        sh->setProjectionMatrix(proj);
-        sh->begin(view);
-        for (int j=dynamicWorld->getNumCollisionObjects()-1; j>=0 ;j--)
-		{
-			btCollisionObject* obj = dynamicWorld->getCollisionObjectArray()[j];
-			btRigidBody* body = btRigidBody::upcast(obj);
-			if (body && body->getMotionState())
-			{
-				btTransform trans;
-				body->getMotionState()->getWorldTransform(trans);
-
-                glm::vec3 pos(trans.getOrigin().getX(), 
-                              trans.getOrigin().getY(), 
-                              trans.getOrigin().getZ());
-
-                btVector3 min;
-                btVector3 max;
-                body->getAabb(min, max);
-
-                sh->box(glm::vec3(min.getX(), min.getY(), min.getZ()),
-                        glm::vec3(max.getX(), max.getY(), max.getZ()));
-			}
-		}
-        sh->end();
+        debugRenderer->begin(view, proj);
+        dynamicWorld->debugDrawWorld();
+        debugRenderer->end();
     }
 };
 

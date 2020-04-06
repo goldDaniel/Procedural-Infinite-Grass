@@ -6,6 +6,7 @@
 #include <tuple>
 
 #include <glm/glm.hpp>
+#include <glm/gtx/transform.hpp>
 using namespace glm;
 
 #include <string>
@@ -20,9 +21,7 @@ using namespace glm;
 class Model 
 {
 private:
-
 	static std::vector<Model*> loadedModels;
-
 
 	std::vector<Mesh*> meshes;
 
@@ -37,43 +36,36 @@ private:
 public:
 
 	static std::vector<Model*> getModels() { return loadedModels; }
-
-	mat4 transform;
-
 	Model(const std::string path);
 	~Model() {}
 
+    Shader* getShader();
 	
 
 	std::vector<Mesh*> getMeshes();
 	
-	void Draw(Shader shader);
-	// for (auto mesh : model->getMeshes()) 
-    // {
+	void Draw(mat4 view, mat4 proj, mat4 transform)
+    {
+        getShader()->use();
+        getShader()->setMat4("proj", proj);
+        getShader()->setMat4("view", view);
+        getShader()->setMat4("model", transform);
 
-    //     shader->setVec4("material.ambient",    mesh->material.ambient);
-    //     shader->setVec4("material.diffuse",    mesh->material.diffuse);
-    //     shader->setVec4("material.specular",   mesh->material.specular);    
-    //     shader->setFloat("material.shininess", mesh->material.shininess);
+        getShader()->setVec3("light.direction", glm::vec3(0, 1.f, 1.f));
+        getShader()->setVec3("light.color", glm::vec3(0.1f, 0.4f, 0.2f));
 
-    //     glBindVertexArray(mesh->getVertexArray());
+        for (auto mesh : meshes) 
+        {
+            getShader()->setVec4("material.ambient",    mesh->material.ambient);
+            getShader()->setVec4("material.diffuse",    mesh->material.diffuse);
+            getShader()->setVec4("material.specular",   mesh->material.specular);    
+            getShader()->setFloat("material.shininess", mesh->material.shininess);
 
-    //     for(int x = 0; x < terrainSize; ++x)
-    //     {
-    //         for(int z = 0; z < terrainSize; ++z)
-    //         {
-    //             glm::mat4 model = glm::translate(glm::mat4(1.f), glm::vec3(x * 0.5f + glm::sin(z), 
-    //                                                                        0, 
-    //                                                                        z * 0.5f + glm::sin(x)));
-
-    //             model = glm::rotate(model, x * 0.214f - z * 0.315f + x * z * 0.618f, glm::vec3(0, 1, 0));
-    //             model = glm::scale(model, glm::vec3(0.2, 2, 0.2));
-
-    //             shader->setMat4("model", model);            
-    //             glDrawElements(GL_TRIANGLES, mesh->numIndices, GL_UNSIGNED_INT, 0);
-    //         }   
-    //     }
-    // }
+            glBindVertexArray(mesh->getVertexArray());
+            glDrawElements(GL_TRIANGLES, mesh->numIndices, GL_UNSIGNED_INT, 0);
+        }
+    }
+	
 };
 
 #endif //__MODEL_H__

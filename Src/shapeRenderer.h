@@ -41,7 +41,7 @@ private:
         "FragColor = vec4(color, 1.f);\n"
     "}\n";
 
-    static const int MAX_VERTICES = 100000;
+    size_t MAX_VERTICES;
     static const int VALUES_PER_VERTEX = 6;//xyz,rgb
 
     glm::vec3 currentColor;
@@ -89,8 +89,15 @@ private:
 
 public:
 
-    ShapeRenderer()
+    ShapeRenderer() : ShapeRenderer(10000)
     {
+
+    }
+    
+    ShapeRenderer(int maxVertices)
+    {
+        MAX_VERTICES = maxVertices;
+
         buffer = new float[MAX_VERTICES * VALUES_PER_VERTEX];
         memset(buffer, 0, MAX_VERTICES * VALUES_PER_VERTEX);
 
@@ -192,8 +199,9 @@ public:
     {
         assert(running);
 
-        if(currentIndex == MAX_VERTICES * VALUES_PER_VERTEX)
+        if(currentIndex >= MAX_VERTICES * VALUES_PER_VERTEX)
         {
+            assert(currentIndex == MAX_VERTICES * VALUES_PER_VERTEX);
             flush();
         }
 

@@ -9,6 +9,7 @@
 
 #include "glad/glad.h"
 
+#include "utils.h"
 
 #include <cassert>
 
@@ -35,6 +36,12 @@ public:
         
         renderer = new Renderer(window);
         renderer->setTerrain(chunks);
+
+        player = new Player();
+
+        physics->createPlayerRigidBody(player);
+
+        std::cout << "PHYSICS MESH GENERATION COMPLETE" << std::endl;
     }
 
     ~Game()
@@ -146,8 +153,18 @@ public:
             }
 
             physics->step();
+
+
+            int w,h;
+            SDL_GetWindowSize(window, &w, &h);
+            glViewport(0, 0, w, h);
+
+            glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+            renderer->queueModel(player->getModel(), player->getTransform());
             renderer->draw(cam->getViewMatrix());
-            physics->renderDebug(cam->getViewMatrix(), glm::perspective(45.f, 1280.f/720.f, 1.f, 1024.f));
+            
 
 
             SDL_GL_SwapWindow(window);
@@ -173,6 +190,8 @@ private:
     static const int SCREEN_FULLSCREEN = 0;
     static const int SCREEN_WIDTH  = 1280;
     static const int SCREEN_HEIGHT = 720;
+
+    Player* player;
 
     void initWindow()
     {

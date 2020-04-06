@@ -20,7 +20,7 @@ std::vector<TerrainChunk*> generateChunks(int size)
     std::vector<TerrainChunk*> result;
 
     FastNoise noise;
-
+    noise.SetSeed(start.time_since_epoch().count());
 
 #define MULTITHREAD_PATH
 #ifdef MULTITHREAD_PATH
