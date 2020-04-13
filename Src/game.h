@@ -3,7 +3,7 @@
 
 #include "camera.h"
 #include "Physics.h"
-#include "renderer.h"
+#include "Graphics/renderer.h"
 #include "terrainChunkGenerator.h"
 #include "terrainChunk.h"
 
@@ -29,7 +29,7 @@ public:
 
         cam = new Camera();
         
-        chunks = generateChunks(8);
+        chunks = generateChunks(16);
         
         physics = new PhysicsSim();
         physics->createTerrainCollisionShapes(chunks);
@@ -40,8 +40,6 @@ public:
         player = new Player();
 
         physics->createPlayerRigidBody(player);
-
-        std::cout << "PHYSICS MESH GENERATION COMPLETE" << std::endl;
     }
 
     ~Game()
@@ -136,7 +134,7 @@ public:
             }
 
             
-            float forceScale = 2048.f;
+            float forceScale = 4096.f;
             if(up)
             {
                 glm::vec3 forceDir = player->getPosition() - cam->getPosition();
@@ -181,6 +179,7 @@ public:
             glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+            renderer->setPointLightPos(player->getPosition());
             renderer->queueModel(player->getModel(), player->getTransform());
             renderer->draw(cam->getViewMatrix());
             

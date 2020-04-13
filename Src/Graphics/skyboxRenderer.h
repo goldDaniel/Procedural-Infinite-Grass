@@ -63,36 +63,6 @@ private:
          1.0f, -1.0f,  1.0f
     };
 
-    const char* vertexSource = 
-    "#version 330 core\n"
-    "layout (location = 0) in vec3 aPos;\n"
-
-    "out vec3 texCoords;\n"
-
-    "uniform mat4 proj;\n"
-    "uniform mat4 view;\n"
-
-    "void main()\n"
-    "{\n"
-        "texCoords = aPos;\n"
-        "vec4 pos = proj * view * vec4(aPos, 1.0);\n"
-        "gl_Position = pos.xyww;\n"
-    "}\n";
-
-    const char* fragmentSource = 
-    "#version 330 core\n"
-    
-    "in vec3 texCoords;\n"
-
-    "uniform samplerCube cubemap;\n"
-
-    "out vec4 FragColor;\n"
-
-    "void main()\n"
-    "{\n"             
-        "FragColor = texture(cubemap, texCoords);\n"
-    "}\n";
-
     unsigned int VAO;
     unsigned int VBO;
 
@@ -150,7 +120,8 @@ public:
         glEnableVertexAttribArray(0);
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 
-        skyboxShader = new Shader(vertexSource, fragmentSource);
+        skyboxShader = new Shader("Assets/Shaders/skybox.vert", 
+                                  "Assets/Shaders/skybox.frag");
 
         skyboxShader->use();
         skyboxShader->setInt("cubemap", 0);

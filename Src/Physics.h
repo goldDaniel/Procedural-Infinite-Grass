@@ -12,7 +12,6 @@
 #include "terrainChunk.h"
 
 #include "player.h"
-#include "shapeRenderer.h"
 
 static btRigidBody* generateTriMesh(TerrainChunk* chunk)
 {

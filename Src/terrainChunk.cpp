@@ -8,7 +8,7 @@
 
 //#define ORIGINAL_TERRAIN_GENERATION
 
-int TerrainChunk::TERRAIN_SIZE = 256;
+int TerrainChunk::TERRAIN_SIZE = 128;
 int TerrainChunk::NOISE_HEIGHT_SCALE = 256;
 
 

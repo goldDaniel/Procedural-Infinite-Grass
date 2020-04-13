@@ -45,10 +45,6 @@ private:
     GLuint vertexBuffers[4];
 
     bool createdOnGPU;
-
-public:
-    static const char* vertexShaderSource;
-    static const char* fragmentShaderSource;
 };
 
 

@@ -19,7 +19,8 @@ std::vector<Model*> Model::loadedModels;
 Model::Model(const std::string path) 
 {
     //init shader
-    if(!shader) shader = new Shader(Mesh::vertexShaderSource, Mesh::fragmentShaderSource);
+    if(!shader) shader = new Shader("Assets/Shaders/model.vert", 
+                                    "Assets/Shaders/model.frag");
 
     loadModel(path);
 

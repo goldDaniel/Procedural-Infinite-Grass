@@ -39,7 +39,7 @@ public:
         rotation = glm::rotate(rotation, pitch, glm::vec3(1, 0, 0));
         offset = rotation * offset;
 
-        glm::vec3 position = target + glm::vec3(offset.x,offset.y,offset.z) * 64.f;
+        glm::vec3 position = target + glm::vec3(offset.x,offset.y,offset.z) * 72.f;
 
         return glm::lookAt(position, target, glm::vec3(0, 1, 0));
     }
@@ -51,7 +51,7 @@ public:
         rotation = glm::rotate(rotation, pitch, glm::vec3(1, 0, 0));
         offset = rotation * offset;
 
-        glm::vec3 position = target + glm::vec3(offset.x,offset.y,offset.z) * 64.f;
+        glm::vec3 position = target + glm::vec3(offset.x,offset.y,offset.z) * 88.f;
 
         return position;
     }

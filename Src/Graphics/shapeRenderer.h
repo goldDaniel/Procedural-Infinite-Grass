@@ -12,35 +12,6 @@ class ShapeRenderer
 {
 private:
 
-    const char* vertexSource = 
-    "#version 330 core\n"
-    "layout (location = 0) in vec3 aPos;\n"
-    "layout (location = 1) in vec3 aCol;\n"
-
-    "out vec3 color;\n"
-
-    "uniform mat4 proj;\n"
-    "uniform mat4 view;\n"
-
-    "void main()\n"
-    "{\n"
-        "color = aCol;\n"
-        "vec4 pos = proj * view * vec4(aPos, 1.0);\n"
-        "gl_Position = pos;\n"
-    "}\n";
-
-    const char* fragmentSource = 
-    "#version 330 core\n"
-    
-    "in vec3 color;\n"
-
-    "out vec4 FragColor;\n"
-
-    "void main()\n"
-    "{\n"             
-        "FragColor = vec4(color, 1.f);\n"
-    "}\n";
-
     size_t MAX_VERTICES;
     static const int VALUES_PER_VERTEX = 6;//xyz,rgb
 
@@ -103,7 +74,8 @@ public:
 
         currentColor = glm::vec3(1.f);
 
-        shader = new Shader(vertexSource, fragmentSource);
+        shader = new Shader("Assets/Shaders/shapeRenderer.vert", 
+                            "Assets/Shaders/shapeRenderer.frag");
 
         glGenVertexArrays(1, &VAO);
         glGenBuffers(1, &VBO);
