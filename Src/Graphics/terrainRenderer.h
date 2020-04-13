@@ -60,8 +60,8 @@ public:
         terrainShader->setVec3("pointLight.diffuse", glm::vec3(0.9f));
         terrainShader->setVec3("pointLight.specular", glm::vec3(0.3f));	
         terrainShader->setFloat("pointLight.constant", 1.f);
-        terrainShader->setFloat("pointLight.linear",   0.045f);
-        terrainShader->setFloat("pointLight.quadratic", 0.0075f);
+        terrainShader->setFloat("pointLight.linear",   0.027f);
+        terrainShader->setFloat("pointLight.quadratic", 0.0028f);
 
         glm::vec3 pos;
         pos.x = view[3][0];
