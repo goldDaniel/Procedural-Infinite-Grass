@@ -29,7 +29,7 @@ public:
 
         cam = new Camera();
         
-        chunks = generateChunks(16);
+        chunks = generateChunks(8);
         
         physics = new PhysicsSim();
         physics->createTerrainCollisionShapes(chunks);

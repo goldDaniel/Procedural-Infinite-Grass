@@ -74,7 +74,7 @@ public:
                                                    solver, 
                                                    collisionConfig);
 
-        dynamicWorld->setGravity(btVector3(0, -64, 0));
+        dynamicWorld->setGravity(btVector3(0, -128, 0));
     }
 
     ~PhysicsSim()
@@ -90,14 +90,14 @@ public:
     {
         
         // btCollisionShape* colShape = new btBoxShape(btVector3(32.f,32.f,32.f));
-		btCollisionShape* colShape = new btSphereShape(btScalar(8.f));
+		btCollisionShape* colShape = new btSphereShape(btScalar(2.f));
 		collisionShapes.push_back(colShape);
 
 		/// Create Dynamic Objects
 		btTransform startTransform;
 		startTransform.setIdentity();
 
-		btScalar mass(64.f);
+		btScalar mass(32.f);
 
 		//rigidbody is dynamic if and only if mass is non zero, otherwise static
 		bool isDynamic = (mass != 0.f);
@@ -123,7 +123,7 @@ public:
 
 
 #define PHYSICS_MULTITHREAD_PATH
-
+#ifdef PHYSICS_MULTITHREAD_PATH
     std::vector<std::future<btRigidBody*>> futures;
     for(TerrainChunk* chunk : chunks)
     {
@@ -134,8 +134,6 @@ public:
     {
         dynamicWorld->addRigidBody(futures[i].get());
     }   
-
-#ifdef PHYSICS_MULTITHREAD_PATH
 #else
  
         for(TerrainChunk* chunk : chunks)
@@ -176,7 +174,7 @@ public:
 
     void step()
     {
-        dynamicWorld->stepSimulation(1.f/60.f, 10);
+        dynamicWorld->stepSimulation(1.f/60.f, 32);
 
         // for (int j=dynamicWorld->getNumCollisionObjects()-1; j>=0 ;j--)
 		// {

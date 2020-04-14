@@ -22,8 +22,6 @@ std::vector<TerrainChunk*> generateChunks(int size)
     FastNoise noise;
     noise.SetSeed(start.time_since_epoch().count());
 
-#define GENERATION_MULTITHREAD_PATH
-#ifdef GENERATION_MULTITHREAD_PATH
 
     std::vector<std::future<TerrainChunk*>> futures;
 
@@ -44,25 +42,6 @@ std::vector<TerrainChunk*> generateChunks(int size)
     {
         chunk->createOnGPU();
     }
-
-#else
-
-    for(int x = -size; x < size; ++x)
-    {
-        for(int z = -size; z < size; ++z)
-        {
-            result.push_back(generateChunk( noise, x, z));
-        }
-    }
-
-    for(TerrainChunk* chunk : result)
-    {
-        chunk->createOnGPU();
-    }
-
-#endif
-
-    
     
 
     return result;
